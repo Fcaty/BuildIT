@@ -1,0 +1,86 @@
+# BuildIT
+CS1200 Final Project: A PC Part Ordering, Reserving, and Wishlist System
+
+TODO LIST:
+
+MENU NAVIGATION
+
+- Login Screen: 
+- User | Initial Menu Options:
+    - View Inventory:
+        - Storage:
+        - CPU:
+        - GPU:
+        - Motherboard:
+        - RAM:
+        - Fans:
+        - PSU:
+        - Cooler
+        - Options for Each:
+            - Reserve:
+            - Add to Cart:
+            - Add to Wishlist:
+            - Add to PC Builder:
+    - View Wishlist: 
+    - View PC Builder:
+    - Exit:
+
+- Admin | Initial Menu Options:
+    - Edit Inventory:
+      - Storage:
+        - CPU:
+        - GPU:
+        - Motherboard:
+        - RAM:
+        - Fans:
+        - PSU:
+        - Options for Each:
+           - Edit Details:
+           - View Reservation History:
+    - View Build Requests: 
+    - Manage Users:
+        - Register a User:
+        - Register an Admin:
+    - Exit:
+
+(FUNCTIONALITY) USER MENU
+- Viewing Sorted Inventory Features: 
+  - Pick between Storage, CPU, GPU, Motherboard, RAM, Fans, PSU:
+  - Giving the user an option to sort by brand (Within each part):
+  - Reserve Function:
+  - Add to Cart:
+  - Add to Wishlist:
+  - Add to PC Builder:
+  - Notify user of available parts that were pre-ordered:
+
+- Wishlist:
+  - Sorting via Type or Brand: 
+  - Removing From Wishlist:
+  - Add to Cart:
+
+- Cart
+  - Removing from Cart: 
+  - Checking Out: 
+
+- PC Builder
+  - Removing Parts: 
+  - Making Build Requests:
+
+(FUNCTIONALITY) ADMIN MENU
+- Viewing Sorted Inventory Features: 
+  - Pick between Storage, CPU, GPU, Motherboard, RAM, Fans, PSU:
+  - Giving the user an option to sort by brand (Within each part):
+  - Allowing the user to add new products:
+  - Allowing the user to remove products:
+  - Allowing the user to edit details:
+
+- Viewing Build Requests:
+  - System lists all users with build requests:
+  - Notify the requester that their build is complete:
+
+- Manage Users:
+  - Registering Users:
+  - Registering Admins:
+  - Removing Users:
+  - Removing Admins:
+  - (OPTIONAL) Turning a User into an Admin:
