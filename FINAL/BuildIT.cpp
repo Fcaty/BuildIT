@@ -36,7 +36,7 @@ struct user {
     char fullname[50];
     char email[50];
     char username[50];
-    char phoneNum[11];
+    char phoneNum[12];
     char password[50];
 }log;
 
@@ -51,18 +51,20 @@ int savingUser(struct user log){
     char fileName[105] = "./PROJECT/FINAL/FILES/USERS/";
     strcat(fileName, log.username);
     strcat(fileName, ".txt");
+
     FILE *fptr = fopen(fileName, "a");
-    if(fptr == NULL) return 1;
+    if (fptr == NULL){
+        printf("ERROR: could not open file\n");
+        return 1;
+    }
 
-    fprintf(fptr, "%s,%s,%s,%s,%s \n", 
-    log.fullname, log.email, log.username, log.phoneNum, log.password);
-
+    fprintf(fptr, "%s,%s,%s,%s,%s\n", log.fullname, log.email, log.username, log.phoneNum, log.password);
     fclose(fptr);
     return 0;
 }
 
 //GENERATES USERNAME FROM EMAIL
-int username(char email[50], char userName[50]){
+int generateUser(char email[50], char userName[50]){
     int i;
     for(i = 0; i < strlen(email); i++) {
         if(email[i] == '@') break;
@@ -72,52 +74,8 @@ int username(char email[50], char userName[50]){
     return 0;
 }
 
-//LOG-IN FUNCTION
-int logIn(){
-    char userInput[100], password[100], fileName[105] = "./PROJECT/FINAL/FILES/USERS/";
-    char line[300];
-    int flag = 0;
-
-    printf("\n\t\t\t\t-----LOGIN-----");
-    printf("\nEnter Username: ");
-    gets(userInput);
-    printf("Enter Password: ");
-    gets(password);
-
-    strcat(fileName, userInput);
-    strcat(fileName, ".txt");
-    
-
-    FILE *fptr; 
-    fptr = fopen(fileName, "r");
-    if(fptr == NULL) {
-    printf("No User Found.");
-    }
-    
-    fscanf(fptr, "%[^,],%[^,],%[^,],%[^,],%s", log.fullname, log.email, log.username, log.phoneNum, log.password);
-
-    if (strcmp(log.username, userInput) == 0 && strcmp(log.password, password) == 0 ){flag = 1;}
-    
-    fclose(fptr);
-
-    if(flag == 1){
-        if(admin(log.username)){
-            printf("\nWELCOME, ADMIN %s!", log.username);
-            printf("\n[ADMIN SCREEN HERE]");
-        }
-        else{
-            printf("\nHello %s!", log.username);
-            printf("[USER SCREEN HERE]");
-        }
-    }
-        else {
-            printf("\nINVALID USERNAME OR PASSWORD!");
-        }
-    return 0;
-}
-
-//REGISTER FUNCTION
-int signUp() {
+int regUser(){
+ struct user log;
 
     printf("\nEnter Fullname: ");
     gets(log.fullname);
@@ -131,12 +89,138 @@ int signUp() {
     printf("Enter Password: ");
     gets(log.password);
 
-    // Generate username from email
-    username(log.email, log.username);
+    generateUser(log.email, log.username);
 
     printf("\nGenerated Username: %s\n", log.username);
 
-    // Save user to file
+    if (savingUser(log) == 0) {
+        printf("User saved successfully!\n");
+    } else {
+        printf("Error saving user.\n");
+    }
+
+    return 0;
+}
+
+int manageUsers(){
+    int adminpref;
+    printf("\n\t\t\t\t-----MANAGE USERS-----");
+    printf("\n1. Register a User");
+    printf("\n2. Register an Admin");
+    printf("\n3. Remove a User");
+    printf("\n4. Remove an Admin");
+    printf("\n5. Exit");
+
+    printf("\nEnter Choice: ");
+    scanf("%d", &adminpref);
+    while (getchar() != '\n');
+
+    switch(adminpref){
+        case 1: 
+        regUser();
+        break;
+      //  case 2:
+      //  case 3:
+      //  case 4: 
+      //  case 5:
+
+    }
+}
+
+
+//LOG-IN FUNCTION
+int logIn(){
+    char userInput[100], password[100], fileName[105] = "./PROJECT/FINAL/FILES/USERS/";
+    char line[300];
+    struct user log;
+    int flag = 0;
+    int adminUI;
+
+    printf("\n\t\t\t\t-----LOGIN-----");
+    printf("\nEnter Username: ");
+    gets(userInput);
+    printf("Enter Password: ");
+    gets(password);
+
+    strcat(fileName, userInput);
+    strcat(fileName, ".txt");
+
+    FILE *fptr = fopen(fileName, "r");
+    if(fptr == NULL){
+    printf("No User Found.");
+    }
+    
+    while(fscanf(fptr, "%[^,],%[^,],%[^,],%[^,],%s", log.fullname, log.email, log.username, log.phoneNum, log.password) == 5){
+    if (strcmp(log.username, userInput) == 0 && strcmp(log.password, password) == 0 ){
+        flag = 1;
+        break;
+        }
+    }
+    fclose(fptr);
+
+    if(flag == 1){
+        if(admin(log.username)){
+            printf("\nWELCOME, %s!", log.username);
+            printf("\n1. Manage Users");
+            printf("\n2. Edit Inventory");
+            printf("\n3. View Build Requests");
+            printf("\n4. Return to Login");
+
+            printf("\nEnter choice: ");
+            scanf("%d", &adminUI);
+ 
+            switch(adminUI){
+                case 1: 
+                manageUsers();
+                break;
+                /*case 2:
+                editInventory();
+                break;
+                case 3:
+                viewBuildReq();
+                break;
+                case 4:
+                main();
+                break;*/
+                default:
+                printf("Invalid Choice");
+                break;
+            }
+         
+            
+        }
+        else{
+            printf("\nHello %s!", log.username);
+            printf("\n[USER SCREEN HERE]");
+        }
+    }
+        else {
+            printf("\nINVALID USERNAME OR PASSWORD!");
+        }
+    return 0;
+}
+
+
+//REGISTER FUNCTION
+int signUp() {
+    struct user log;
+
+    printf("\nEnter Fullname: ");
+    gets(log.fullname);
+
+    printf("Enter Email: ");
+    gets(log.email);
+
+    printf("Enter Contact Number: ");
+    gets(log.phoneNum);
+
+    printf("Enter Password: ");
+    gets(log.password);
+
+    generateUser(log.email, log.username);
+
+    printf("\nGenerated Username: %s\n", log.username);
+
     if (savingUser(log) == 0) {
         printf("User saved successfully!\n");
     } else {
@@ -427,9 +511,33 @@ void createCooler(){
 }
 
 int main(){
-    clrscr();
-    createCooler();
-    return 0;
+    int choice;
+
+    while(1){
+    printf("\n\t\t\t\t-----BUILD IT-----");
+    printf("\n1. Login");
+    printf("\n2. Exit");
+    printf("\n3. Register");
+    printf("\nEnter Choice: ");
+    scanf("%d", &choice);
+    while (getchar() != '\n');
+
+    switch (choice){
+        case 1: 
+        logIn();
+        break;
+        case 2:
+        printf("\nGoodbyee...");
+        return 0;
+     case 3:
+     signUp();
+    break;
+        default:
+        printf("Invalid Choice");
+        break;
+    }
+}
+return 0;
 }
 
 //TO USE: ./PROJECT/FINAL/FILES/PARTS/COOL/test.txt (filepath)
