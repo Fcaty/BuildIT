@@ -5,7 +5,7 @@ TODO LIST:
 
 MENU NAVIGATION
 
-- Login Screen: 
+- Login Screen: ✔️
 - User | Initial Menu Options:
     - View Inventory:
         - Storage:
@@ -23,14 +23,14 @@ MENU NAVIGATION
             - Add to PC Builder:
     - View Wishlist: 
     - View PC Builder:
-    - Exit:
+    - Exit: ✔️
 
 - Admin | Initial Menu Options:
     - Edit Inventory:
-      - Storage:
-        - CPU:
-        - GPU:
-        - Motherboard:
+      - Storage: 
+        - CPU: 
+        - GPU: 
+        - Motherboard: 
         - RAM:
         - Fans:
         - PSU:
@@ -41,7 +41,7 @@ MENU NAVIGATION
     - Manage Users:
         - Register a User:
         - Register an Admin:
-    - Exit:
+    - Exit: ✔️
 
 (FUNCTIONALITY) USER MENU
 - Viewing Sorted Inventory Features: 
@@ -68,9 +68,9 @@ MENU NAVIGATION
 
 (FUNCTIONALITY) ADMIN MENU
 - Viewing Sorted Inventory Features: 
-  - Pick between Storage, CPU, GPU, Motherboard, RAM, Fans, PSU:
+  - Pick between Storage, CPU, GPU, Motherboard, RAM, Fans, PSU: 
   - Giving the user an option to sort by brand (Within each part):
-  - Allowing the user to add new products:
+  - Allowing the user to add new products: ✔️
   - Allowing the user to remove products:
   - Allowing the user to edit details:
 
@@ -79,7 +79,7 @@ MENU NAVIGATION
   - Notify the requester that their build is complete:
 
 - Manage Users:
-  - Registering Users:
+  - Registering Users: ✔️ 
   - Registering Admins:
   - Removing Users:
   - Removing Admins:
