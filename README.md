@@ -38,8 +38,8 @@ MENU NAVIGATION
            - Edit Details:
            - View Reservation History:
     - View Build Requests: 
-    - Manage Users:
-        - Register a User:
+    - Manage Users: ✔️ 
+        - Register a User: ✔️
         - Register an Admin:
     - Exit: ✔️
 
@@ -80,7 +80,7 @@ MENU NAVIGATION
 
 - Manage Users:
   - Registering Users: ✔️ 
-  - Registering Admins:
+  - Registering Admins: ✔️
   - Removing Users:
   - Removing Admins:
   - (OPTIONAL) Turning a User into an Admin:
