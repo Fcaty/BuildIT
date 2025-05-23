@@ -147,6 +147,25 @@ int signUp() {
 }
 
 //FUNCTIONS RELATED TO FILE-HANDLING START HERE
+
+void addList(char fileName[100], char productName[50]){
+    FILE *fptr;
+    fptr = fopen(fileName, "a");
+    int limit = 8, count = 0;
+    char ch;
+    
+    while(count < limit){
+        ch = productName[count];
+        if(ch == ' '){
+            count++;
+            limit++;
+            continue;
+        } 
+        fputc(ch, fptr);
+        count++;
+    } fprintf(fptr,"\n");
+}
+
 //CREATES NEW STORAGE ENTRIES
 void createStorage(){
     FILE *fptr;
@@ -166,6 +185,8 @@ void createStorage(){
     scanf("%d", &createStorage.price);
     printf("Enter current stock: ");
     scanf("%d", &createStorage.stock);
+
+    addList("./PROJECT/FINAL/FILES/PARTS/STO/LIST.TXT",createStorage.name);
 
     strcat(fileName, createStorage.name);
     strcat(fileName, ".txt");
@@ -199,6 +220,8 @@ void createCPU(){
     printf("Enter current stock: ");
     scanf("%d", &createCPU.stock);
 
+    addList("./PROJECT/FINAL/FILES/PARTS/CPU/LIST.TXT",createCPU.name);
+
     strcat(fileName, createCPU.name);
     strcat(fileName, ".txt");
     fptr = fopen(fileName, "w");
@@ -230,6 +253,8 @@ void createGPU(){
     printf("Enter current stock: ");
     scanf("%d", &createGPU.stock);
 
+    addList("./PROJECT/FINAL/FILES/PARTS/GPU/LIST.TXT",createGPU.name);
+
     strcat(fileName, createGPU.name);
     strcat(fileName, ".txt");
     fptr = fopen(fileName, "w");
@@ -256,6 +281,8 @@ void createMobo(){
     scanf("%d", &createMobo.price);
     printf("Enter current stock: ");
     scanf("%d", &createMobo.stock);
+
+    addList("./PROJECT/FINAL/FILES/PARTS/MOBO/LIST.TXT",createMobo.name);
 
     strcat(fileName, createMobo.name);
     strcat(fileName, ".txt");
@@ -286,6 +313,8 @@ void createRAM(){
     scanf("%d", &createRAM.price);
     printf("Enter current stock: ");
     scanf("%d", &createRAM.stock);
+
+    addList("./PROJECT/FINAL/FILES/PARTS/RAM/LIST.TXT",createRAM.name);
 
     strcat(fileName, createRAM.name);
     strcat(fileName, ".txt");
@@ -318,6 +347,8 @@ void createFans(){
     printf("Enter amount of stock: ");
     scanf("%d", &createFans.stock);
 
+    addList("./PROJECT/FINAL/FILES/PARTS/FANS/LIST.TXT",createFans.name);
+
     strcat(fileName, createFans.name);
     strcat(fileName, ".txt");
     fptr = fopen(fileName, "w");
@@ -349,6 +380,8 @@ void createPSU(){
     printf("Enter amount of stock: ");
     scanf("%d", &createPSU.stock);
 
+    addList("./PROJECT/FINAL/FILES/PARTS/PSU/LIST.TXT",createPSU.name);
+
     strcat(fileName, createPSU.name);
     strcat(fileName, ".txt");
     fptr = fopen(fileName, "w");
@@ -378,6 +411,8 @@ void createCooler(){
     printf("Enter amount of stock: ");
     scanf("%d", &createCooler.stock);
 
+    addList("./PROJECT/FINAL/FILES/PARTS/COOL/LIST.TXT",createCooler.name);
+
     strcat(fileName, createCooler.name);
     strcat(fileName, ".txt");
     fptr = fopen(fileName, "w");
@@ -391,11 +426,9 @@ void createCooler(){
     fclose(fptr);
 }
 
-
 int main(){
     clrscr();
     createCooler();
-    getch();
     return 0;
 }
 
