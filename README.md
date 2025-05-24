@@ -16,11 +16,11 @@ MENU NAVIGATION
         - Fans: ✔️
         - PSU: ✔️
         - Cooler: ✔️
-        - Options for Each:
-            - Reserve:
-            - Add to Cart:
-            - Add to Wishlist:
-            - Add to PC Builder:
+        - Options for Each: ✔️
+            - Reserve: ✔️
+            - Add to Cart: ✔️
+            - Add to Wishlist: ✔️
+            - Add to PC Builder: ✔️
     - View Wishlist: ✔️
     - View PC Builder: ✔️
     - Exit: ✔️
@@ -40,13 +40,13 @@ MENU NAVIGATION
     - View Build Requests: 
     - Manage Users: ✔️ 
         - Register a User: ✔️
-        - Register an Admin:
+        - Register an Admin: ✔️
     - Exit: ✔️
 
 (FUNCTIONALITY) USER MENU
 - Viewing Sorted Inventory Features:  ✔️
   - Pick between Storage, CPU, GPU, Motherboard, RAM, Fans, PSU: ✔️
-  - Giving the user an option to sort by brand (Within each part):
+  - Giving the user an option to sort by brand (OPTIONAL):
   - Reserve Function:
   - Add to Cart:
   - Add to Wishlist:
@@ -54,7 +54,7 @@ MENU NAVIGATION
   - Notify user of available parts that were pre-ordered:
 
 - Wishlist:
-  - Sorting via Type or Brand: 
+  - Sorting via Type or Brand (OPTIONAL): 
   - Removing From Wishlist:
   - Add to Cart:
 
