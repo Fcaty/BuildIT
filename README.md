@@ -6,47 +6,46 @@ TODO LIST:
 MENU NAVIGATION
 
 - Login Screen: ✔️
-- User | Initial Menu Options:
-    - View Inventory:
-        - Storage:
-        - CPU:
-        - GPU:
-        - Motherboard:
-        - RAM:
-        - Fans:
-        - PSU:
-        - Cooler
-        - Options for Each:
-            - Reserve:
-            - Add to Cart:
-            - Add to Wishlist:
-            - Add to PC Builder:
-    - View Wishlist: 
-    - View PC Builder:
+- User | Initial Menu Options: 
+    - View Inventory: ✔️
+        - Storage: ✔️
+        - CPU: ✔️
+        - GPU: ✔️
+        - Motherboard: ✔️
+        - RAM: ✔️
+        - Fans: ✔️
+        - PSU: ✔️
+        - Cooler: ✔️
+        - Options for Each: ✔️
+            - Reserve: ✔️
+            - Add to Cart: ✔️
+            - Add to Wishlist: ✔️
+            - Add to PC Builder: ✔️
+    - View Wishlist: ✔️
+    - View PC Builder: ✔️
     - Exit: ✔️
 
 - Admin | Initial Menu Options:
-    - Edit Inventory:
-      - Storage: 
-        - CPU: 
-        - GPU: 
-        - Motherboard: 
-        - RAM:
-        - Fans:
-        - PSU:
+    - Edit Inventory: ✔️
+      - Storage: ✔️
+        - CPU: ✔️
+        - GPU: ✔️
+        - Motherboard: ✔️
+        - RAM: ✔️
+        - Fans: ✔️
+        - PSU: ✔️
         - Options for Each:
            - Edit Details:
            - View Reservation History:
     - View Build Requests: 
     - Manage Users: ✔️ 
         - Register a User: ✔️
-        - Register an Admin:
+        - Register an Admin: ✔️
     - Exit: ✔️
 
 (FUNCTIONALITY) USER MENU
-- Viewing Sorted Inventory Features: 
-  - Pick between Storage, CPU, GPU, Motherboard, RAM, Fans, PSU:
-  - Giving the user an option to sort by brand (Within each part):
+- Viewing Sorted Inventory Features:  ✔️
+  - Pick between Storage, CPU, GPU, Motherboard, RAM, Fans, PSU: ✔️
   - Reserve Function:
   - Add to Cart:
   - Add to Wishlist:
@@ -54,7 +53,6 @@ MENU NAVIGATION
   - Notify user of available parts that were pre-ordered:
 
 - Wishlist:
-  - Sorting via Type or Brand: 
   - Removing From Wishlist:
   - Add to Cart:
 
@@ -68,8 +66,7 @@ MENU NAVIGATION
 
 (FUNCTIONALITY) ADMIN MENU
 - Viewing Sorted Inventory Features: 
-  - Pick between Storage, CPU, GPU, Motherboard, RAM, Fans, PSU: 
-  - Giving the user an option to sort by brand (Within each part):
+  - Pick between Storage, CPU, GPU, Motherboard, RAM, Fans, PSU: ✔️
   - Allowing the user to add new products: ✔️
   - Allowing the user to remove products:
   - Allowing the user to edit details:
