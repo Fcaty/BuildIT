@@ -6,23 +6,23 @@ TODO LIST:
 MENU NAVIGATION
 
 - Login Screen: ✔️
-- User | Initial Menu Options:
-    - View Inventory:
-        - Storage:
-        - CPU:
-        - GPU:
-        - Motherboard:
-        - RAM:
-        - Fans:
-        - PSU:
-        - Cooler
+- User | Initial Menu Options: 
+    - View Inventory: ✔️
+        - Storage: ✔️
+        - CPU: ✔️
+        - GPU: ✔️
+        - Motherboard: ✔️
+        - RAM: ✔️
+        - Fans: ✔️
+        - PSU: ✔️
+        - Cooler: ✔️
         - Options for Each:
             - Reserve:
             - Add to Cart:
             - Add to Wishlist:
             - Add to PC Builder:
-    - View Wishlist: 
-    - View PC Builder:
+    - View Wishlist: ✔️
+    - View PC Builder: ✔️
     - Exit: ✔️
 
 - Admin | Initial Menu Options:
@@ -44,8 +44,8 @@ MENU NAVIGATION
     - Exit: ✔️
 
 (FUNCTIONALITY) USER MENU
-- Viewing Sorted Inventory Features: 
-  - Pick between Storage, CPU, GPU, Motherboard, RAM, Fans, PSU:
+- Viewing Sorted Inventory Features:  ✔️
+  - Pick between Storage, CPU, GPU, Motherboard, RAM, Fans, PSU: ✔️
   - Giving the user an option to sort by brand (Within each part):
   - Reserve Function:
   - Add to Cart:
