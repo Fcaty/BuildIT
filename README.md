@@ -26,14 +26,14 @@ MENU NAVIGATION
     - Exit: ✔️
 
 - Admin | Initial Menu Options:
-    - Edit Inventory:
-      - Storage: 
-        - CPU: 
-        - GPU: 
-        - Motherboard: 
-        - RAM:
-        - Fans:
-        - PSU:
+    - Edit Inventory: ✔️
+      - Storage: ✔️
+        - CPU: ✔️
+        - GPU: ✔️
+        - Motherboard: ✔️
+        - RAM: ✔️
+        - Fans: ✔️
+        - PSU: ✔️
         - Options for Each:
            - Edit Details:
            - View Reservation History:
@@ -46,7 +46,6 @@ MENU NAVIGATION
 (FUNCTIONALITY) USER MENU
 - Viewing Sorted Inventory Features:  ✔️
   - Pick between Storage, CPU, GPU, Motherboard, RAM, Fans, PSU: ✔️
-  - Giving the user an option to sort by brand (OPTIONAL):
   - Reserve Function:
   - Add to Cart:
   - Add to Wishlist:
@@ -54,7 +53,6 @@ MENU NAVIGATION
   - Notify user of available parts that were pre-ordered:
 
 - Wishlist:
-  - Sorting via Type or Brand (OPTIONAL): 
   - Removing From Wishlist:
   - Add to Cart:
 
@@ -68,8 +66,7 @@ MENU NAVIGATION
 
 (FUNCTIONALITY) ADMIN MENU
 - Viewing Sorted Inventory Features: 
-  - Pick between Storage, CPU, GPU, Motherboard, RAM, Fans, PSU: 
-  - Giving the user an option to sort by brand (Within each part):
+  - Pick between Storage, CPU, GPU, Motherboard, RAM, Fans, PSU: ✔️
   - Allowing the user to add new products: ✔️
   - Allowing the user to remove products:
   - Allowing the user to edit details:
