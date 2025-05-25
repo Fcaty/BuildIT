@@ -37,6 +37,7 @@ MENU NAVIGATION
         - Options for Each:
            - Edit Details: ✔️
            - View Reservation History:
+           - Delete Item ✔️
     - View Build Requests: 
     - Manage Users: ✔️ 
         - Register a User: ✔️
@@ -68,7 +69,7 @@ MENU NAVIGATION
 - Viewing Sorted Inventory Features: 
   - Pick between Storage, CPU, GPU, Motherboard, RAM, Fans, PSU: ✔️
   - Allowing the user to add new products: ✔️
-  - Allowing the user to remove products:
+  - Allowing the user to remove products: ✔️
   - Allowing the user to edit details: ✔️
 
 - Viewing Build Requests:
