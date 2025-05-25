@@ -24,7 +24,7 @@ MENU NAVIGATION
     - View PC Builder: ✔️
     - Exit: ✔️
 
-- Admin | Initial Menu Options:
+- Admin | Initial Menu Options: ✔️
     - Edit Inventory: ✔️
       - Storage: ✔️
         - CPU: ✔️
@@ -33,7 +33,7 @@ MENU NAVIGATION
         - RAM: ✔️
         - Fans: ✔️
         - PSU: ✔️
-        - Options for Each:
+        - Options for Each: ✔️
            - Edit Details: ✔️
            - View Reservation History: ✔️
            - Delete Item ✔️
@@ -48,18 +48,18 @@ MENU NAVIGATION
   - Pick between Storage, CPU, GPU, Motherboard, RAM, Fans, PSU: ✔️
   - Reserve Function: ✔️
   - Add to Cart: ✔️
-  - Add to PC Builder:
+  - Add to PC Builder: ✔️
   - Checkout: ✔️
   - Notify user of available parts that were pre-ordered: ✔️
 
-- Reserve List: 
+- Reserve List: ✔️
   - Removing from List: ✔️
 
-- Cart
+- Cart: ✔️
   - Removing from Cart: ✔️
   - Checking Out: ✔️
 
-- PC Builder
+- PC Builder: 
   - Removing Parts: 
   - Making Build Requests:
 
@@ -71,7 +71,7 @@ MENU NAVIGATION
   - Allowing the user to edit details: ✔️
   - Allow the user to view receipts: 
 
-- Viewing Build Requests:
+- Viewing Build Requests: 
   - System lists all users with build requests:
 
 - Manage Users:
