@@ -53,10 +53,10 @@ MENU NAVIGATION
   - Notify user of available parts that were pre-ordered: ✔️
 
 - Reserve List: 
-  - Removing from List
+  - Removing from List: ✔️
 
 - Cart
-  - Removing from Cart: 
+  - Removing from Cart: ✔️
   - Checking Out: ✔️
 
 - PC Builder
