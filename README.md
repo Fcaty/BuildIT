@@ -35,7 +35,7 @@ MENU NAVIGATION
         - Fans: ✔️
         - PSU: ✔️
         - Options for Each:
-           - Edit Details:
+           - Edit Details: ✔️
            - View Reservation History:
     - View Build Requests: 
     - Manage Users: ✔️ 
@@ -69,7 +69,7 @@ MENU NAVIGATION
   - Pick between Storage, CPU, GPU, Motherboard, RAM, Fans, PSU: ✔️
   - Allowing the user to add new products: ✔️
   - Allowing the user to remove products:
-  - Allowing the user to edit details:
+  - Allowing the user to edit details: ✔️
 
 - Viewing Build Requests:
   - System lists all users with build requests:
