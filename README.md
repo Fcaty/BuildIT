@@ -35,7 +35,7 @@ MENU NAVIGATION
         - PSU: ✔️
         - Options for Each:
            - Edit Details: ✔️
-           - View Reservation History:
+           - View Reservation History: ✔️
            - Delete Item ✔️
     - View Build Requests: 
     - Manage Users: ✔️ 
@@ -49,11 +49,15 @@ MENU NAVIGATION
   - Reserve Function: ✔️
   - Add to Cart: ✔️
   - Add to PC Builder:
+  - Checkout: ✔️
   - Notify user of available parts that were pre-ordered: ✔️
+
+- Reserve List: 
+  - Removing from List
 
 - Cart
   - Removing from Cart: 
-  - Checking Out: 
+  - Checking Out: ✔️
 
 - PC Builder
   - Removing Parts: 
@@ -65,6 +69,7 @@ MENU NAVIGATION
   - Allowing the user to add new products: ✔️
   - Allowing the user to remove products: ✔️
   - Allowing the user to edit details: ✔️
+  - Allow the user to view receipts: 
 
 - Viewing Build Requests:
   - System lists all users with build requests:
