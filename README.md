@@ -35,8 +35,9 @@ MENU NAVIGATION
         - Fans: ✔️
         - PSU: ✔️
         - Options for Each:
-           - Edit Details:
+           - Edit Details: ✔️
            - View Reservation History:
+           - Delete Item ✔️
     - View Build Requests: 
     - Manage Users: ✔️ 
         - Register a User: ✔️
@@ -65,11 +66,11 @@ MENU NAVIGATION
   - Making Build Requests:
 
 (FUNCTIONALITY) ADMIN MENU
-- Viewing Sorted Inventory Features: 
+- Viewing Sorted Inventory Features: ✔️
   - Pick between Storage, CPU, GPU, Motherboard, RAM, Fans, PSU: ✔️
   - Allowing the user to add new products: ✔️
-  - Allowing the user to remove products:
-  - Allowing the user to edit details:
+  - Allowing the user to remove products: ✔️
+  - Allowing the user to edit details: ✔️
 
 - Viewing Build Requests:
   - System lists all users with build requests:
