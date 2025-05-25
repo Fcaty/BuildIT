@@ -47,15 +47,10 @@ MENU NAVIGATION
 (FUNCTIONALITY) USER MENU
 - Viewing Sorted Inventory Features:  ✔️
   - Pick between Storage, CPU, GPU, Motherboard, RAM, Fans, PSU: ✔️
-  - Reserve Function:
-  - Add to Cart:
-  - Add to Wishlist:
+  - Reserve Function: ✔️
+  - Add to Cart: ✔️
   - Add to PC Builder:
-  - Notify user of available parts that were pre-ordered:
-
-- Wishlist:
-  - Removing From Wishlist:
-  - Add to Cart:
+  - Notify user of available parts that were pre-ordered: ✔️
 
 - Cart
   - Removing from Cart: 
@@ -74,11 +69,9 @@ MENU NAVIGATION
 
 - Viewing Build Requests:
   - System lists all users with build requests:
-  - Notify the requester that their build is complete:
 
 - Manage Users:
   - Registering Users: ✔️ 
   - Registering Admins: ✔️
-  - Removing Users:
-  - Removing Admins:
-  - (OPTIONAL) Turning a User into an Admin:
+  - Removing Users: 
+  - Removing Admins: 
