@@ -66,7 +66,7 @@ MENU NAVIGATION
   - Making Build Requests:
 
 (FUNCTIONALITY) ADMIN MENU
-- Viewing Sorted Inventory Features: 
+- Viewing Sorted Inventory Features: ✔️
   - Pick between Storage, CPU, GPU, Motherboard, RAM, Fans, PSU: ✔️
   - Allowing the user to add new products: ✔️
   - Allowing the user to remove products: ✔️
