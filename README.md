@@ -6,7 +6,7 @@ TODO LIST:
 MENU NAVIGATION
 
 - Login Screen: ✔️
-- User | Initial Menu Options: 
+- User | Initial Menu Options: ✔️
     - View Inventory: ✔️
         - Storage: ✔️
         - CPU: ✔️
@@ -19,7 +19,6 @@ MENU NAVIGATION
         - Options for Each: ✔️
             - Reserve: ✔️
             - Add to Cart: ✔️
-            - Add to Wishlist: ✔️
             - Add to PC Builder: ✔️
     - View Wishlist: ✔️
     - View PC Builder: ✔️
