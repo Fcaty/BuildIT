@@ -60,8 +60,8 @@ MENU NAVIGATION
   - Checking Out: ✔️
 
 - PC Builder: 
-  - Removing Parts: 
-  - Making Build Requests:
+  - Removing Parts: ✔️
+  - Making Build Requests: ✔️
 
 (FUNCTIONALITY) ADMIN MENU
 - Viewing Sorted Inventory Features: ✔️
@@ -69,13 +69,12 @@ MENU NAVIGATION
   - Allowing the user to add new products: ✔️
   - Allowing the user to remove products: ✔️
   - Allowing the user to edit details: ✔️
-  - Allow the user to view receipts: 
+  - Allow the user to view receipts: ✔️
 
-- Viewing Build Requests: 
-  - System lists all users with build requests:
+- Viewing Build Requests: ✔️
+  - System lists all users with build requests: ✔️
 
-- Manage Users:
+- Manage Users: ✔️
   - Registering Users: ✔️ 
   - Registering Admins: ✔️
-  - Removing Users: 
-  - Removing Admins: 
+  - Removing Users: ✔️
