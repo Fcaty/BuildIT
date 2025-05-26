@@ -6,7 +6,7 @@ TODO LIST:
 MENU NAVIGATION
 
 - Login Screen: ✔️
-- User | Initial Menu Options: 
+- User | Initial Menu Options: ✔️
     - View Inventory: ✔️
         - Storage: ✔️
         - CPU: ✔️
@@ -19,13 +19,12 @@ MENU NAVIGATION
         - Options for Each: ✔️
             - Reserve: ✔️
             - Add to Cart: ✔️
-            - Add to Wishlist: ✔️
             - Add to PC Builder: ✔️
     - View Wishlist: ✔️
     - View PC Builder: ✔️
     - Exit: ✔️
 
-- Admin | Initial Menu Options:
+- Admin | Initial Menu Options: ✔️
     - Edit Inventory: ✔️
       - Storage: ✔️
         - CPU: ✔️
@@ -34,9 +33,9 @@ MENU NAVIGATION
         - RAM: ✔️
         - Fans: ✔️
         - PSU: ✔️
-        - Options for Each:
+        - Options for Each: ✔️
            - Edit Details: ✔️
-           - View Reservation History:
+           - View Reservation History: ✔️
            - Delete Item ✔️
     - View Build Requests: 
     - Manage Users: ✔️ 
@@ -47,21 +46,20 @@ MENU NAVIGATION
 (FUNCTIONALITY) USER MENU
 - Viewing Sorted Inventory Features:  ✔️
   - Pick between Storage, CPU, GPU, Motherboard, RAM, Fans, PSU: ✔️
-  - Reserve Function:
-  - Add to Cart:
-  - Add to Wishlist:
-  - Add to PC Builder:
-  - Notify user of available parts that were pre-ordered:
+  - Reserve Function: ✔️
+  - Add to Cart: ✔️
+  - Add to PC Builder: ✔️
+  - Checkout: ✔️
+  - Notify user of available parts that were pre-ordered: ✔️
 
-- Wishlist:
-  - Removing From Wishlist:
-  - Add to Cart:
+- Reserve List: ✔️
+  - Removing from List: ✔️
 
-- Cart
-  - Removing from Cart: 
-  - Checking Out: 
+- Cart: ✔️
+  - Removing from Cart: ✔️
+  - Checking Out: ✔️
 
-- PC Builder
+- PC Builder: 
   - Removing Parts: 
   - Making Build Requests:
 
@@ -71,14 +69,13 @@ MENU NAVIGATION
   - Allowing the user to add new products: ✔️
   - Allowing the user to remove products: ✔️
   - Allowing the user to edit details: ✔️
+  - Allow the user to view receipts: 
 
-- Viewing Build Requests:
+- Viewing Build Requests: 
   - System lists all users with build requests:
-  - Notify the requester that their build is complete:
 
 - Manage Users:
   - Registering Users: ✔️ 
   - Registering Admins: ✔️
-  - Removing Users:
-  - Removing Admins:
-  - (OPTIONAL) Turning a User into an Admin:
+  - Removing Users: 
+  - Removing Admins: 
