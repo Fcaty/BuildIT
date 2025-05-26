@@ -43,19 +43,20 @@ struct user {
 //Global Variables (Used for selection, editing, and deleting.)
 char listStore[999][10]; //Stores the selected LIST.TXT file.
 int listType[999]; //Stores the types of a selected LIST.TXT file. Commonly utilized by ReserveLists.
+char PCBuildName[8][10];
+char PCBuildType[8];
 struct Part read; //Stores a selected PARTS.TXT file.
 
 struct PCBuild {
-    char Mobo[40];
-    char CPU[30];
-    char GPU[30];
-    char RAM1[20];
-    char RAM2[20];
-    char Sto[30];
-    char Fans[30];
-    char Cooler[30];
-    char PSU[30];
-};
+    char Mobo[10];
+    char CPU[10];
+    char GPU[10];
+    char RAM[10];
+    char Sto[10];
+    char Fans[10];
+    char Cooler[10];
+    char PSU[10];
+}build;
 
 
 //FUNCTIONS RELATED TO FILE-HANDLING START HERE
@@ -75,7 +76,7 @@ void addList(char fileName[100], char productName[50]){
    fclose(fptr);
 }
 
-//Selects a given LIST.TXT file and prepares it for viewing, deleting, or editing.
+//Selects a given LIST.TXT file containing strings and prepares it for viewing, deleting, or editing.
 int selectList(char fileName[100]){
     FILE *fptr;
     int index = 0;
@@ -88,14 +89,18 @@ int selectList(char fileName[100]){
     return index;
 }
 
+//Selects a given LIST.TXT file containing strings and decimals, preparing it for viewing, deleting, or editing.
 int selectResList(char fileName[100]){
     FILE *fptr;
     int index = 0;
     fptr = fopen(fileName,"r");
-
-    while(fscanf(fptr,"%[^,],%d,", listStore[index], &listType[index]) == 2) index++;
+    if (fptr == NULL){
+        printf("Invalid Operation!");
+    } else {
+    while(fscanf(fptr,"%9[^,],%d,", listStore[index], &listType[index]) == 2) index++;
     fclose(fptr);
-    
+    }
+
     return index;
 }
 
@@ -136,6 +141,50 @@ void deleteFromResList(char listLoc[100], int selected, int limit){
     for(int j = 0; j < limit; j++){
         fprintf(fptr,"%s,%d,",listStore[j],listType[j]);
     } fclose(fptr);
+}
+
+void deleteFromBuildList(char listLoc[100], int selected){
+    FILE *fptr;
+
+    fptr = fopen(listLoc, "r");
+    fscanf(fptr, "%[^,],%d,%[^,],%d,%[^,],%d,%[^,],%d,%[^,],%d,%[^,],%d,%[^,],%d,%[^,],%d", 
+                    build.Mobo, &PCBuildType[0], build.CPU, &PCBuildType[1], build.GPU, &PCBuildType[2], build.RAM, &PCBuildType[3], build.Sto, &PCBuildType[4],
+                    build.Fans, &PCBuildType[5], build.Cooler, &PCBuildType[6], build.PSU, &PCBuildType[7]);
+    fclose(fptr);
+    //THE CASES ARE BASED ON THE ORDER SHOWN IN THE PC BUILD DISPLAY
+    switch(selected){
+        case 1: //Motherboard
+        strcpy(build.Mobo, "EMPTY");
+        break; 
+        case 2: //CPU
+        strcpy(build.CPU, "EMPTY");
+        break;
+        case 3: //GPU
+        strcpy(build.GPU, "EMPTY");
+        break;
+        case 4: //RAM
+        strcpy(build.RAM, "EMPTY");
+        break;
+        case 5: //Storage
+        strcpy(build.Sto, "EMPTY");
+        break;
+        case 6: //Fans
+        strcpy(build.Fans, "EMPTY");
+        break;
+        case 7: //Cooler
+        strcpy(build.Cooler, "EMPTY");
+        break;
+        case 8: //PSU
+        strcpy(build.PSU, "EMPTY");
+        break;
+    }
+
+    fptr = fopen(listLoc, "w");
+    fprintf(fptr, "%s,%d,%s,%d,%s,%d,%s,%d,%s,%d,%s,%d,%s,%d,%s,%d,", 
+        build.Mobo, PCBuildType[0], build.CPU, PCBuildType[1], 
+        build.GPU, PCBuildType[2], build.RAM, PCBuildType[3], build.Sto, PCBuildType[4], build.Fans ,PCBuildType[5], 
+        build.Cooler, PCBuildType[6], build.PSU, PCBuildType[7]);
+    fclose(fptr);
 }
 
 //Will delete a selected file.
@@ -179,103 +228,10 @@ void deleteFile(char name[10], int index, int limit, int type){
     deleteFromList(listLoc, index, limit);
 }
 
-
-//Selects a given .TXT file to read for editing values located within.
-void readFile(char name[10], int type){
+void updateInfo(char name[10], int type){
     FILE *fptr;
     char fileName[100] = "./PROJECT/FINAL/FILES/PARTS/";
-
     switch(type){
-        case 1: //storage
-        strcat(fileName,"STO/");
-        break;
-        case 2: //cpu
-        strcat(fileName,"CPU/");
-        break;
-        case 3: //gpu
-        strcat(fileName,"GPU/");
-        break;
-        case 4: //motherboard
-        strcat(fileName,"MOBO/");
-        break;
-        case 5: //ram
-        strcat(fileName,"RAM/");
-        break;
-        case 6: //fan
-        strcat(fileName,"FANS/");
-        break;
-        case 7: //psu
-        strcat(fileName,"PSU/");
-        break;
-        case 8: //cooler
-        strcat(fileName,"COOL/");
-        break;
-    } 
-    strcat(fileName, name);
-    strcat(fileName, ".TXT");
-    
-    fptr = fopen(fileName, "r");
-    fscanf(fptr, "%[^,],%[^,],%d,%d,", read.brand, read.name, &read.price, &read.stock);
-
-    switch(type){
-        case 1: //storage
-        fscanf(fptr, "%d,%[^,]", &read.storage.amount, read.storage.type);
-        break;
-        case 2: //cpu
-        fscanf(fptr, "%d", &read.cpu.MHz);
-        break;
-        case 3: //gpu
-        fscanf(fptr, "%d", &read.gpu.VRAM);
-        break;
-        case 5: //ram
-        fscanf(fptr, "%d,%d", &read.ram.MHz, &read.ram.amount);
-        break;
-        case 6: //fan
-        fscanf(fptr, "%d", &read.fans.amount);
-        break;
-        case 7: //psu
-        fscanf(fptr, "%d", &read.psu.wattage);
-        break;
-        case 8: //cooler
-        fscanf(fptr, "%[^,]", read.cooler.type);
-        break;
-    } fclose(fptr);
-}
-
-void editFile(char name[10], int type){
-    FILE *fptr;
-    char fileName[100] = "./PROJECT/FINAL/FILES/PARTS/";
-    int choice = 0;
-    readFile(name, type);
-
-    printf("\n\t\t\t-----EDIT ENTRY-----\n");
-    printf("Which would you like to update?\n");
-    printf("1. Price\n");
-    printf("2. Stock\n");
-    printf("3. Both\n");
-    printf("Choice: ");
-    scanf("%d", &choice);
-
-    switch(choice){
-        case 1:
-        printf("Enter new price: ");
-        scanf("%d", &read.price);
-        break;
-        case 2:
-        printf("Enter new stock amount: ");
-        scanf("%d", &read.stock);
-        break;
-        case 3:
-        printf("Enter new price: ");
-        scanf("%d", &read.price);
-        printf("Enter new stock amount: ");
-        scanf("%d", &read.stock);
-        break;
-        default:
-        printf("Invalid Input!");
-    }
-
-     switch(type){
         case 1: //storage
         strcat(fileName,"STO/");
         strcat(fileName, name);
@@ -342,6 +298,105 @@ void editFile(char name[10], int type){
     } fclose(fptr);
     
 }
+
+
+//Selects a given .TXT file to read for editing values located within.
+void readFile(char name[10], int type){
+    FILE *fptr;
+    char fileName[100] = "./PROJECT/FINAL/FILES/PARTS/";
+
+    switch(type){
+        case 1: //storage
+        strcat(fileName,"STO/");
+        break;
+        case 2: //cpu
+        strcat(fileName,"CPU/");
+        break;
+        case 3: //gpu
+        strcat(fileName,"GPU/");
+        break;
+        case 4: //motherboard
+        strcat(fileName,"MOBO/");
+        break;
+        case 5: //ram
+        strcat(fileName,"RAM/");
+        break;
+        case 6: //fan
+        strcat(fileName,"FANS/");
+        break;
+        case 7: //psu
+        strcat(fileName,"PSU/");
+        break;
+        case 8: //cooler
+        strcat(fileName,"COOL/");
+        break;
+    } 
+    strcat(fileName, name);
+    strcat(fileName, ".TXT");
+    
+    fptr = fopen(fileName, "r");
+    fscanf(fptr, "%[^,],%[^,],%d,%d,", read.brand, read.name, &read.price, &read.stock);
+
+    switch(type){
+        case 1: //storage
+        fscanf(fptr, "%d,%[^,]", &read.storage.amount, read.storage.type);
+        break;
+        case 2: //cpu
+        fscanf(fptr, "%d", &read.cpu.MHz);
+        break;
+        case 3: //gpu
+        fscanf(fptr, "%d", &read.gpu.VRAM);
+        break;
+        case 5: //ram
+        fscanf(fptr, "%d,%d", &read.ram.MHz, &read.ram.amount);
+        break;
+        case 6: //fan
+        fscanf(fptr, "%d", &read.fans.amount);
+        break;
+        case 7: //psu
+        fscanf(fptr, "%d", &read.psu.wattage);
+        break;
+        case 8: //cooler
+        fscanf(fptr, "%[^,]", read.cooler.type);
+        break;
+    } fclose(fptr);
+}
+
+void editFile(char name[10], int type){
+    int choice = 0;
+    readFile(name, type);
+
+    printf("\n\t\t\t-----EDIT ENTRY-----\n");
+    printf("Which would you like to update?\n");
+    printf("1. Price\n");
+    printf("2. Stock\n");
+    printf("3. Both\n");
+    printf("Choice: ");
+    scanf("%d", &choice);
+
+    switch(choice){
+        case 1:
+        printf("Enter new price: ");
+        scanf("%d", &read.price);
+        updateInfo(name, type);
+        break;
+        case 2:
+        printf("Enter new stock amount: ");
+        scanf("%d", &read.stock);
+        updateInfo(name, type);
+        break;
+        case 3:
+        printf("Enter new price: ");
+        scanf("%d", &read.price);
+        printf("Enter new stock amount: ");
+        scanf("%d", &read.stock);
+        updateInfo(name, type);
+        break;
+        default:
+        printf("Invalid Input!");
+    }
+}
+     
 
 //CREATES NEW STORAGE ENTRIES
 //CASE 1
@@ -622,6 +677,7 @@ void createCooler(){
 
 //FILES RELATED TO OUTPUT START HERE
 void addtoCart(char name[10], int type);
+
 void previewList(char name[10], int type){
     FILE *fptr;
     struct Part lister;
@@ -791,16 +847,70 @@ void displayItem(char name[10], int type){
     }fclose(fptr);
 }
 
+void printBuildList(char name[10], int type){
+    FILE *fptr;
+    struct Part lister;
+    char fileName[100] = "./PROJECT/FINAL/FILES/PARTS/";
+
+    switch(type){
+        case 1: //storage
+        strcat(fileName, "STO/");
+        printf("%-15s", "Storage: ");
+        break;
+        case 2: //cpu
+        strcat(fileName, "CPU/");
+        printf("%-15s", "CPU: ");
+        break;
+        case 3: //gpu
+        strcat(fileName, "GPU/");
+        printf("%-15s", "GPU:" );
+        break;
+        case 4: //Motherboard
+        strcat(fileName, "MOBO/");
+        printf("%-15s", "Motherboard: ");
+        break;
+        case 5: //RAM
+        strcat(fileName, "RAM/");
+        printf("%-15s", "RAM (2x): ");
+        break;
+        case 6: //Fan
+        strcat(fileName, "FANS/");
+        printf("%-15s", "Fans:");
+        break;
+        case 7: //PSU
+        strcat(fileName, "PSU/");
+        printf("%-15s", "PSU: ");
+        break;
+        case 8: //Cooler
+        strcat(fileName, "COOL/");
+        printf("%-15s", "Cooler: ");
+    }
+
+    if(strncmp(name,"EMPTY",4) == 0){
+        printf("%-10s %-25s %-6d\n", "NONE", "NONE", 0);
+    } else {
+
+    strcat(fileName, name);
+    strcat(fileName, ".TXT");
+    fptr = fopen(fileName, "r");
+
+    fscanf(fptr, "%[^,],%[^,],%d,%d", lister.brand, lister.name, &lister.price, &lister.stock);
+
+    printf("%-10s %-25s %-6d\n", lister.brand, lister.name, lister.price);
+    fclose(fptr);
+    }
+}
+
 void restockNotify(){
-    char fileName[100] = "./PROJECT/FINAL/FILES/LISTS/RL/";
+    char listLoc[100] = "./PROJECT/FINAL/FILES/LISTS/RL/";
     char Name[9];
     int flag = 0;
     strncpy(Name, log.username, 8);
     Name[8] = '\0';
-    strcat(fileName, Name);
-    strcat(fileName, ".TXT");
+    strcat(listLoc, Name);
+    strcat(listLoc, ".TXT");
 
-    int limit = selectResList(fileName);
+    int limit = selectResList(listLoc);
 
     for(int i = 0; i < limit; i++){
         readFile(listStore[i],listType[i]);
@@ -808,7 +918,7 @@ void restockNotify(){
         if(read.stock >= 1){
             addtoCart(listStore[i], listType[i]);
             flag++;
-            deleteFromResList(fileName, i, limit);
+            deleteFromResList(listLoc, i, limit);
         }
     }
 
@@ -819,6 +929,8 @@ void restockNotify(){
     }
 
 }
+
+
 
 //ADMIN SPECIFIC FUNCTIONS START HERE
 int viewInventory();
@@ -891,6 +1003,22 @@ void editInventory(){
 
 int admin(char* username);
 
+void viewReserve(char name[10]){
+    FILE *fptr;
+    char output[50];
+    int count = 0;
+    char fileName[100] = "./PROJECT/FINAL/FILES/LISTS/RH/";
+    strcat(fileName, name);
+    strcat(fileName, ".TXT");
+
+    fptr = fopen(fileName, "r");
+    while(fscanf(fptr, "%[^,],", output) == 1 ){
+        ++count;
+        printf("%d. %s\n", count, output);
+    }
+
+}
+
 void adminViewItem(int index, int type, int limit){
     int choice = 0;
     clrscr();
@@ -906,7 +1034,7 @@ void adminViewItem(int index, int type, int limit){
 
     switch(choice){
         case 1: 
-        //viewReserve();
+        viewReserve(listStore[index]);
         break;
         case 2:
         editFile(listStore[index], type);
@@ -922,6 +1050,59 @@ void adminViewItem(int index, int type, int limit){
         default: 
         break;
     }
+}
+int checkout(char uname[9], int type);
+
+int viewRequest(char uName[9], int index, int delLimit){
+    FILE *fptr;
+    int pcBuilder, mode;
+    char fileName[100] = "./PROJECT/FINAL/FILES/LISTS/BR/";
+    char fileLoc[100] = "./PROJECT/FINAL/FILES/LISTS/BR/LIST.TXT";
+    strcat(fileName, uName);
+    strcat(fileName, ".TXT");
+    clrscr();
+    printf("==========================================================================\n");
+    int limit = selectResList(fileName);
+    for(int i = 0; i < limit; i++){
+        printBuildList(listStore[i], listType[i]);
+    }
+    printf("\n========================================================================");
+    
+    printf("\n1. Mark Request as Accomplished\n");
+    printf("\n2. Return");
+    printf("\nEnter Choice: ");
+    scanf("%d", &pcBuilder);
+    switch(pcBuilder){
+        case 1: 
+        checkout(uName, 2); 
+        selectList(fileLoc);
+        deleteFromList(fileLoc, index, delLimit); 
+        fptr = fopen(fileName, "w");
+        fprintf(fptr, "ACM");
+        fclose(fptr);
+        break;
+        case 2:;
+    }
+    
+    return 0;
+}
+
+void viewBuildRequests(){
+    FILE *fptr;
+    int selectBuild = 0;
+    char listLoc[100] = "./PROJECT/FINAL/FILES/LISTS/BR/LIST.TXT";
+    char uName[16];
+
+    int limit = selectList(listLoc);
+    for (int i = 0; i < limit; i++){
+        printf("Request #%d | UN: %s\n\n\n\n\n", i+1, listStore[i]);
+    } 
+
+    printf("Select list: ");
+    scanf("%d", &selectBuild);
+    strcpy(uName, listStore[selectBuild-1]);
+    viewRequest(uName, selectBuild-1, limit);
+
 }
 
 //USER SPECIFIC FUNCTIONS START HERE
@@ -967,6 +1148,77 @@ void addtoCart(char name[10], int type){
     fclose(fptr);
 }
 
+void addtoPCBuilder(char name[10], int type){
+    FILE *fptr;
+    char fileName[100] = "./PROJECT/FINAL/FILES/LISTS/BR/";
+    char uName[9];
+    strncpy(uName, log.username, 8);
+    uName[8] = '\0';
+    strcat(fileName, uName);
+    strcat(fileName, ".TXT");
+    fptr = fopen(fileName, "r");
+    if ((fptr) == NULL){
+        fptr = fopen(fileName, "w");
+        fprintf(fptr ,"EMPTY,4,EMPTY,2,EMPTY,3,EMPTY,5,EMPTY,1,EMPTY,6,EMPTY,8,EMPTY,7,");
+        fclose(fptr);
+
+        fptr = fopen(fileName, "r");
+        fscanf(fptr, "%[^,],%d,%[^,],%d,%[^,],%d,%[^,],%d,%[^,],%d,%[^,],%d,%[^,],%d,%[^,],%d", 
+                    build.Mobo, &PCBuildType[0], build.CPU, &PCBuildType[1], build.GPU, &PCBuildType[2], build.RAM, &PCBuildType[3], build.Sto, &PCBuildType[4],
+                    build.Fans, &PCBuildType[5], build.Cooler, &PCBuildType[6], build.PSU, &PCBuildType[7]);
+        fclose(fptr);
+    } else {
+        
+        fscanf(fptr, "%[^,],%d,%[^,],%d,%[^,],%d,%[^,],%d,%[^,],%d,%[^,],%d,%[^,],%d,%[^,],%d", 
+                    build.Mobo, &PCBuildType[0], build.CPU, &PCBuildType[1], build.GPU, &PCBuildType[2], build.RAM, &PCBuildType[3], build.Sto, &PCBuildType[4],
+                    build.Fans, &PCBuildType[5], build.Cooler, &PCBuildType[6], build.PSU, &PCBuildType[7]);
+        fclose(fptr);
+    }
+
+    switch(type){
+       case 1: //storage
+       strcpy(build.Sto, name);
+       PCBuildType[4]= 1;
+       break;
+       case 2: //cpu
+       strcpy(build.CPU, name);
+       PCBuildType[1]= 2;
+       break;
+       case 3: //gpu
+       strcpy(build.GPU, name);
+       PCBuildType[2]= 3;
+       break;
+       case 4: //motherboard
+       strcpy(build.Mobo, name);
+       PCBuildType[0]= 4;
+       break;
+       case 5: //ram
+       strcpy(build.RAM, name);
+       PCBuildType[3]= 5;
+       break;
+       case 6: //fans
+       strcpy(build.Fans, name);
+       PCBuildType[5]= 6;
+       break;
+       case 7: //psu
+       strcpy(build.PSU, name);
+       PCBuildType[7]= 7;
+       break;
+       case 8:  //cooler
+       strcpy(build.Cooler, name);
+       PCBuildType[6]= 8;
+       break;
+    }
+
+    fptr = fopen(fileName, "w");
+    fprintf(fptr, "%s,%d,%s,%d,%s,%d,%s,%d,%s,%d,%s,%d,%s,%d,%s,%d,", 
+        build.Mobo, PCBuildType[0], build.CPU, PCBuildType[1], 
+        build.GPU, PCBuildType[2], build.RAM, PCBuildType[3], build.Sto, PCBuildType[4], build.Fans ,PCBuildType[5], 
+        build.Cooler, PCBuildType[6], build.PSU, PCBuildType[7]);
+    fclose(fptr);
+
+}
+
 void userViewItem(int index, int type){
     int choice = 0;
     clrscr();
@@ -983,26 +1235,98 @@ void userViewItem(int index, int type){
     printf("\nEnter Choice: ");
     scanf("%d", &choice);
 
-    if(read.stock > 0 && choice == 1) choice++;
     switch(choice){
         case 1: 
-        reserveItem(listStore[index], type);
+        if(read.stock <= 0) reserveItem(listStore[index], type);
+        else addtoCart(listStore[index], type);
         break;
         case 2:
-        addtoCart(listStore[index], type);
+        addtoPCBuilder(listStore[index], type);
         break;
         case 3:
-        //addtoPCBuilder;
-        break;
-        case 4:
         viewInventory();
+        break;
         default: 
         break;
     }
 }
 
+void submitRequest(char fileName[100], char uName[9]){
+    FILE *fptr;
+    char check[10]; 
+    int buffer, flag = 0;
+    fptr = fopen(fileName, "r");
+    while(fscanf(fptr,"%[^,],%d,", check, buffer) == 2) {
+        if (strncmp("EMPTY", check, 5) == 0) flag++;
+    }
+
+    if(flag >= 1){
+        printf("%d missing entries detected!\nSubmission denied.\n", flag); getch();
+    } else {
+       fptr = fopen("./PROJECT/FINAL/FILES/LISTS/BR/LIST.TXT", "a");
+       fprintf(fptr, "%s,", uName);
+    }
+}
+
+int receiptEntry(char name[10], int type){
+    readFile(name, type);
+    --read.stock;
+    updateInfo(name, type);
+    return read.price;
+}
+
+int checkout(char uname[9], int type){
+    FILE *fptr;
+    int receiptNo = 0;
+    int outputNo = 0;
+    fptr = fopen("./PROJECT/FINAL/FILES/LISTS/RECEIPTS/NUMGEN.TXT", "r"); 
+    fscanf(fptr, "%d", &receiptNo);
+    outputNo = receiptNo;
+    fclose(fptr);
+
+    fptr = fopen("./PROJECT/FINAL/FILES/LISTS/RECEIPTS/NUMGEN.TXT", "w"); 
+    fprintf(fptr, "%d", ++receiptNo);
+    fclose(fptr);
+    char numGen[8];
+    sprintf(numGen, "%d", receiptNo);
+
+    char recLoc[100] = "./PROJECT/FINAL/FILES/LISTS/RECEIPTS/";
+    strcat(recLoc, numGen);
+    strcat(recLoc, ".TXT");
+    
+    char listLoc[100];
+
+    switch(type){
+    case 1: strcpy(listLoc,"./PROJECT/FINAL/FILES/LISTS/CART/"); break;
+    case 2: strcpy(listLoc,"./PROJECT/FINAL/FILES/LISTS/BR/"); break;
+    }
+
+    strcat(listLoc, uname);
+    strcat(listLoc, ".TXT");
+    int totalPayment = 0;
+    
+
+    int limit = selectResList(listLoc);
+    fptr = fopen(recLoc, "w");
+    fprintf(fptr, "RECEIPT NO: %d\n", receiptNo);
+    fprintf(fptr, "BUYER: %s\n", log.fullname);
+    fprintf(fptr,"%-10s | %-6s\n", "NAME", "PRICE");
+    for(int i = 0; i < limit; i++){
+        readFile(listStore[i], listType[i]);
+        fprintf(fptr, "%-10s | %-6d\n", listStore[i], read.price);
+        totalPayment += receiptEntry(listStore[i], listType[i]);
+    }
+    fprintf(fptr, "TOTAL PRICE: %d", totalPayment);
+    fclose(fptr);
+    
+    fptr = fopen(listLoc, "w");
+    fclose(fptr);
+    
+    return outputNo;
+} 
+
 int viewCart(){
-   int cart;
+   int cart, mode;
    char fileName[100] = "./PROJECT/FINAL/FILES/LISTS/CART/";
    char Name[9];
    strncpy(Name, log.username, 8);
@@ -1010,8 +1334,16 @@ int viewCart(){
 
    strcat(fileName, Name);
    strcat(fileName, ".TXT");
-
-   clrscr(); 
+   clrscr();
+    
+   do{
+    printf("1. Delete Mode\n");
+    printf("2. View Mode\n");
+    printf("Select mode: ");
+    scanf("%d", &mode);
+    } while(mode != 1 && mode != 2);
+   
+    clrscr(); 
    printf("%-15s %-45s %-6s %-6s\n","BRAND", "NAME", "PRICE", "STOCK");
    printf("==========================================================================\n");
    int limit = selectResList(fileName);
@@ -1020,19 +1352,30 @@ int viewCart(){
         previewList(listStore[i], listType[i]);
     }
     printf("\n========================================================================");
-    printf("\nEnter Choice: ");
-    scanf("%d", &cart);
+    if (mode == 1){
+        printf("\nSelect item for deletion: ");
+        scanf("%d", &cart);
+        deleteFromResList(fileName, cart-1, limit); }
+    else getch();
     return 0;
 }
 
 void viewResList(){
-    int wishList;
+    int resList, mode;
     char fileName[100] = "./PROJECT/FINAL/FILES/LISTS/RL/";
     char Name[9];
     strncpy(Name, log.username, 8);
     Name[8] = '\0';
     strcat(fileName, Name);
     strcat(fileName, ".TXT");
+    clrscr();
+
+    do{
+    printf("1. Delete Mode\n");
+    printf("2. View Mode\n");
+    printf("Select mode: ");
+    scanf("%d", &mode);
+    } while(mode != 1 && mode != 2);
 
     clrscr();
     printf("%-15s %-45s %-6s %-6s\n","BRAND", "NAME", "PRICE", "STOCK");
@@ -1043,23 +1386,34 @@ void viewResList(){
         previewList(listStore[i], listType[i]);
     }
     printf("\n========================================================================");
-    printf("\nEnter Choice: ");
-    scanf("%d", &wishList);
-    while (getchar() != '\n');
-    if(wishList == 0){
-        userWindow();
+    if (mode == 1){
+    printf("\nSelect item for deletion: ");    
+    scanf("%d", &resList);
+    deleteFromResList(fileName, resList-1, limit);
     }
 }
 
 int viewPcBuilder(){
-    int pcBuilder;
+    int pcBuilder, mode;
+    char fileName[100] = "./PROJECT/FINAL/FILES/LISTS/BR/";
+    char uName[9];
+    strncpy(uName, log.username, 8);
+    uName[8] = '\0';
+    strcat(fileName, uName);
+    strcat(fileName, ".TXT");
+
     clrscr();
-    printf("%-15s %-45s %-6s %-6s\n","BRAND", "NAME", "PRICE", "STOCK");
-    printf("==========================================================================");
-    printf("\n\n\n\n\n\n\n\n\n\n\n");
+    printf("==========================================================================\n");
+    int limit = selectResList(fileName);
+    for(int i = 0; i < limit; i++){
+        printBuildList(listStore[i], listType[i]);
+    }
     printf("\n========================================================================");
     printf("\nEnter Choice: ");
     scanf("%d", &pcBuilder);
+    //deleteFromBuildList(fileName, pcBuilder);
+    submitRequest(fileName, uName);
+
     return 0;
 }
 
@@ -1116,7 +1470,7 @@ int iGPU(){
     printf("\nEnter Choice: ");
     scanf("%d", &gpu);
     if(admin(log.username)) adminViewItem(gpu-1,3,limit);
-    userViewItem(gpu-1,3);
+    else userViewItem(gpu-1,3);
       return 0;
 }
 
@@ -1134,7 +1488,7 @@ int iMotherboard(){
     printf("\nEnter Choice: ");
     scanf("%d", &motherboard);
     if(admin(log.username)) adminViewItem(motherboard-1,4,limit);
-    userViewItem(motherboard-1,4);
+    else userViewItem(motherboard-1,4);
       return 0;
 }
 
@@ -1152,7 +1506,7 @@ int iRAM(){
     printf("\nEnter Choice: ");
     scanf("%d", &ram);
     if(admin(log.username)) adminViewItem(ram-1,5,limit);
-    userViewItem(ram-1,5);
+    else userViewItem(ram-1,5);
       return 0;
 }
 
@@ -1170,7 +1524,7 @@ int iFans(){
     printf("\nEnter Choice: ");
     scanf("%d", &fans);
     if(admin(log.username)) adminViewItem(fans-1,6,limit);
-    userViewItem(fans-1,6);
+    else userViewItem(fans-1,6);
   return 0;
 }
 
@@ -1188,7 +1542,7 @@ int iPSU(){
     printf("\nEnter Choice: ");
     scanf("%d", &psu);
     if(admin(log.username)) adminViewItem(psu-1,7,limit);
-    userViewItem(psu-1,7);
+    else userViewItem(psu-1,7);
       return 0;
 }
 
@@ -1206,7 +1560,7 @@ int iCooler(){
     printf("\nEnter Choice: ");
     scanf("%d", &cooler);
     if(admin(log.username)) adminViewItem(cooler-1,8,limit);
-    userViewItem(cooler-1,8);
+    else userViewItem(cooler-1,8);
     return 0;
 }
 
@@ -1360,13 +1714,17 @@ int manageUsers(){
 
 void userWindow(){
     int userpref = 0;
+    char uname[9];
+    strncpy(uname, log.username, 9);
+    uname[8] = '\0';
     printf("\nHello %s!", log.username);
             printf("\n\t\t\t\t-----USER WINDOW-----");
             printf("\n1. View Inventory");
             printf("\n2. View Reserved Items List");
             printf("\n3. View Cart");
             printf("\n4. View PC Builder");
-            printf("\n5. Exit");
+            printf("\n5. Checkout");
+            printf("\n6. Exit");
     
             printf("\n====================");
             printf("\nEnter Choice: ");
@@ -1395,6 +1753,10 @@ void userWindow(){
                 clrscr();
                 break;
         case 5:
+                clrscr();
+                checkout(uname, 1);
+                break;
+        case 6:
                 clrscr();
                 printf("Goodbye...");
                 clrscr();
@@ -1426,10 +1788,11 @@ void adminWindow(){
                 case 3:
                 viewInventory();
                 break;
-                /*case 4:
+                case 4:
                 viewBuildRequests();
                 break;
-                case 5:*/
+                case 5:
+                break;
                 default:
                 printf("Invalid Choice");
                 break;
