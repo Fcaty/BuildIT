@@ -147,6 +147,9 @@ void deleteFromBuildList(char listLoc[100], int selected){
     FILE *fptr;
 
     fptr = fopen(listLoc, "r");
+    if (fptr == NULL){
+        printf("Create your list by adding 1 item to your buildlist!\n");
+    } else {
     fscanf(fptr, "%[^,],%d,%[^,],%d,%[^,],%d,%[^,],%d,%[^,],%d,%[^,],%d,%[^,],%d,%[^,],%d", 
                     build.Mobo, &PCBuildType[0], build.CPU, &PCBuildType[1], build.GPU, &PCBuildType[2], build.RAM, &PCBuildType[3], build.Sto, &PCBuildType[4],
                     build.Fans, &PCBuildType[5], build.Cooler, &PCBuildType[6], build.PSU, &PCBuildType[7]);
@@ -185,6 +188,7 @@ void deleteFromBuildList(char listLoc[100], int selected){
         build.GPU, PCBuildType[2], build.RAM, PCBuildType[3], build.Sto, PCBuildType[4], build.Fans ,PCBuildType[5], 
         build.Cooler, PCBuildType[6], build.PSU, PCBuildType[7]);
     fclose(fptr);
+    } 
 }
 
 //Will delete a selected file.
@@ -893,11 +897,13 @@ void printBuildList(char name[10], int type){
     strcat(fileName, name);
     strcat(fileName, ".TXT");
     fptr = fopen(fileName, "r");
-
-    fscanf(fptr, "%[^,],%[^,],%d,%d", lister.brand, lister.name, &lister.price, &lister.stock);
-
-    printf("%-10s %-25s %-6d\n", lister.brand, lister.name, lister.price);
-    fclose(fptr);
+      if(fptr == NULL){
+        printf("Create your list by adding 1 item to your buildlist!\n");
+      } else {
+        fscanf(fptr, "%[^,],%[^,],%d,%d", lister.brand, lister.name, &lister.price, &lister.stock);
+        printf("%-10s %-25s %-6d\n", lister.brand, lister.name, lister.price);
+        fclose(fptr);
+      }
     }
 }
 
@@ -930,9 +936,32 @@ void restockNotify(){
 
 }
 
+void builtNotify(){
+    FILE *fptr;
+    char brLoc[100] = "./PROJECT/FINAL/FILES/LISTS/BR/";
+    char key[5];
+    char Name[9];
+    strncpy(Name, log.username, 8);
+    Name[8] = '\0';
+    strcat(brLoc, Name);
+    strcat(brLoc, ".TXT");
+
+    fptr = fopen(brLoc, "r");
+    fscanf(fptr,"%3s,",key);
+    fclose(fptr);
+
+    if(strcmp("ACM",key) == 0){
+        printf("Your build request has been completed!\n");
+        remove(brLoc);
+        getch();
+    } 
+
+}
+
 
 
 //ADMIN SPECIFIC FUNCTIONS START HERE
+void adminWindow();
 int viewInventory();
 void editInventory(){
     int inventory;
@@ -946,6 +975,7 @@ void editInventory(){
     printf("\n6. Add Fans Entry");
     printf("\n7. Add PSU Entry");
     printf("\n8. Add Cooler Entry");
+    printf("\n9. Go Back");
 
     printf("\n===============");
     printf("\nEnter Choice: ");
@@ -993,10 +1023,11 @@ void editInventory(){
         break;
     case 9:
         clrscr();
-        printf("Goodbye!");
+        adminWindow();
         getch();
+        break;
     default:
-        printf("Choice Invalid");
+        adminWindow();
         break;
     }
 }
@@ -1019,6 +1050,28 @@ void viewReserve(char name[10]){
 
 }
 
+void viewReceipts(){
+    clrscr();
+    FILE *fptr;
+    char recLoc[100] = "./PROJECT/FINAL/FILES/LISTS/RECEIPTS/";
+    char readString[75];
+    char select[10];
+    printf("Enter receipt no.: ");
+    scanf("%s", &select);
+    strcat(recLoc, select);
+    strcat(recLoc, ".TXT");
+
+    fptr = fopen(recLoc, "r");
+    if (fptr == NULL){
+        printf("Invalid receipt!\n");
+    } else { 
+        while(fgets(readString, 75, fptr)) printf("%s", readString);
+        fclose(fptr); 
+    }
+    getch();
+    adminWindow();
+}
+
 void adminViewItem(int index, int type, int limit){
     int choice = 0;
     clrscr();
@@ -1035,9 +1088,11 @@ void adminViewItem(int index, int type, int limit){
     switch(choice){
         case 1: 
         viewReserve(listStore[index]);
+        viewInventory();
         break;
         case 2:
         editFile(listStore[index], type);
+        viewInventory();
         break;
         case 3:
         deleteFile(listStore[index], index, limit, type);
@@ -1081,13 +1136,16 @@ int viewRequest(char uName[9], int index, int delLimit){
         fprintf(fptr, "ACM");
         fclose(fptr);
         break;
-        case 2:;
+        case 2:
+        adminWindow();
+        break;
     }
     
     return 0;
 }
 
 void viewBuildRequests(){
+    clrscr();
     FILE *fptr;
     int selectBuild = 0;
     char listLoc[100] = "./PROJECT/FINAL/FILES/LISTS/BR/LIST.TXT";
@@ -1095,7 +1153,7 @@ void viewBuildRequests(){
 
     int limit = selectList(listLoc);
     for (int i = 0; i < limit; i++){
-        printf("Request #%d | UN: %s\n\n\n\n\n", i+1, listStore[i]);
+        printf("Request #%d | UN: %s\n", i+1, listStore[i]);
     } 
 
     printf("Select list: ");
@@ -1103,6 +1161,39 @@ void viewBuildRequests(){
     strcpy(uName, listStore[selectBuild-1]);
     viewRequest(uName, selectBuild-1, limit);
 
+}
+
+void removeUser(){
+    FILE *fptr;
+    int select;
+    char selected[9];
+    char listLoc[100] = "./PROJECT/FINAL/FILES/USERS/LIST.TXT";
+    char BRLoc[100] = "./PROJECT/FINAL/FILES/LISTS/BR/";
+    char cartLoc[100] = "./PROJECT/FINAL/FILES/LISTS/CART/";
+    char ReqLoc[100] = "./PROJECT/FINAL/FILES/LISTS/RL";
+    char fileName[100] = "./PROJECT/FINAL/FILES/USERS/";
+
+    int limit = selectList(listLoc);
+    for(int i = 0; i < limit; i++){
+        printf("%d. %s\n", i+1, listStore[i]);
+    }
+    printf("Select user to delete: ");
+    scanf("%d", &select);
+    strncpy(selected, listStore[select-1], 8);
+    selected[8] = '\0';
+    strcat(BRLoc, selected);
+    strcat(cartLoc, selected);
+    strcat(ReqLoc, selected);
+    strcat(fileName, selected);
+    strcat(BRLoc, ".TXT");
+    strcat(cartLoc, ".TXT");
+    strcat(ReqLoc, ".TXT");
+    strcat(fileName, ".TXT");
+    deleteFromList(listLoc, select - 1, limit);
+    remove(BRLoc);
+    remove(cartLoc);
+    remove(ReqLoc);
+    remove(fileName);
 }
 
 //USER SPECIFIC FUNCTIONS START HERE
@@ -1232,16 +1323,25 @@ void userViewItem(int index, int type){
     }
     printf("2. Add Item to PC Builder\n");
     printf("3. Return");
-    printf("\nEnter Choice: ");
-    scanf("%d", &choice);
+    do{
+        printf("\nEnter Choice: ");
+        scanf("%d", &choice);
+    }while(choice > 4 && choice < 0);
 
     switch(choice){
         case 1: 
-        if(read.stock <= 0) reserveItem(listStore[index], type);
-        else addtoCart(listStore[index], type);
+        if(read.stock <= 0) {
+            reserveItem(listStore[index], type);
+            viewInventory();
+        } else {
+            addtoCart(listStore[index], type); 
+            viewInventory();
+        }
+
         break;
         case 2:
         addtoPCBuilder(listStore[index], type);
+        viewInventory();
         break;
         case 3:
         viewInventory();
@@ -1261,7 +1361,7 @@ void submitRequest(char fileName[100], char uName[9]){
     }
 
     if(flag >= 1){
-        printf("%d missing entries detected!\nSubmission denied.\n", flag); getch();
+        printf("%d missing entries detected!\nSubmission denied.\n", flag);
     } else {
        fptr = fopen("./PROJECT/FINAL/FILES/LISTS/BR/LIST.TXT", "a");
        fprintf(fptr, "%s,", uName);
@@ -1307,6 +1407,8 @@ int checkout(char uname[9], int type){
     
 
     int limit = selectResList(listLoc);
+    if(limit == 0) return -1;
+
     fptr = fopen(recLoc, "w");
     fprintf(fptr, "RECEIPT NO: %d\n", receiptNo);
     fprintf(fptr, "BUYER: %s\n", log.fullname);
@@ -1322,7 +1424,7 @@ int checkout(char uname[9], int type){
     fptr = fopen(listLoc, "w");
     fclose(fptr);
     
-    return outputNo;
+    return outputNo+1;
 } 
 
 int viewCart(){
@@ -1351,12 +1453,18 @@ int viewCart(){
         printf("%d.",i+1);
         previewList(listStore[i], listType[i]);
     }
-    printf("\n========================================================================");
+    printf("\n========================================================================\n");
     if (mode == 1){
-        printf("\nSelect item for deletion: ");
+        printf("Select item for deletion: ");
         scanf("%d", &cart);
-        deleteFromResList(fileName, cart-1, limit); }
-    else getch();
+        deleteFromResList(fileName, cart-1, limit); 
+        userWindow();
+    }
+    else {
+        printf("Enter any key to return: ");
+        getch();
+        userWindow();
+    }
     return 0;
 }
 
@@ -1385,11 +1493,17 @@ void viewResList(){
         printf("%d.", i+1);
         previewList(listStore[i], listType[i]);
     }
-    printf("\n========================================================================");
+    printf("\n========================================================================\n");
     if (mode == 1){
-    printf("\nSelect item for deletion: ");    
-    scanf("%d", &resList);
-    deleteFromResList(fileName, resList-1, limit);
+        printf("\nSelect item for deletion: ");    
+        scanf("%d", &resList);
+        deleteFromResList(fileName, resList-1, limit); 
+        userWindow();
+
+    } else {
+        printf("Enter any key to return: \n"); 
+        getch(); 
+        userWindow();
     }
 }
 
@@ -1397,10 +1511,19 @@ int viewPcBuilder(){
     int pcBuilder, mode;
     char fileName[100] = "./PROJECT/FINAL/FILES/LISTS/BR/";
     char uName[9];
+    char YorN;
     strncpy(uName, log.username, 8);
     uName[8] = '\0';
     strcat(fileName, uName);
     strcat(fileName, ".TXT");
+
+    do{
+        printf("1. Delete Mode\n");
+        printf("2. Submission Mode\n");
+        printf("3. View Mode\n");
+        printf("Select Mode: ");
+        scanf("%d", &mode);
+    } while(mode > 3 && mode < 1);
 
     clrscr();
     printf("==========================================================================\n");
@@ -1408,11 +1531,37 @@ int viewPcBuilder(){
     for(int i = 0; i < limit; i++){
         printBuildList(listStore[i], listType[i]);
     }
-    printf("\n========================================================================");
-    printf("\nEnter Choice: ");
-    scanf("%d", &pcBuilder);
-    //deleteFromBuildList(fileName, pcBuilder);
-    submitRequest(fileName, uName);
+    printf("\n========================================================================\n");
+    switch(mode){
+        case 1: 
+            printf("Enter Choice: ");
+            scanf("%d", &pcBuilder);
+            deleteFromBuildList(fileName, pcBuilder);
+            userWindow();
+            break;
+        
+        case 2:
+            do{
+                printf("Are you sure you would like to submit? [Y/N]: ");
+                scanf("\n%c", &YorN);
+            }while(YorN != 'Y' && YorN != 'N');
+            
+            if(YorN == 'Y') {
+                submitRequest(fileName, uName); 
+                userWindow(); 
+            }
+            else {
+                userWindow();
+            }
+            break;
+
+        case 3: 
+            printf("Press any key to return: ");
+            getch();
+            userWindow();
+            break;
+
+    }
 
     return 0;
 }
@@ -1576,6 +1725,7 @@ int viewInventory(){
     printf("\n6. Fans");
     printf("\n7. PSU");
     printf("\n8. Cooler");
+    printf("\n9. Return");
 
     printf("\n===============");
     printf("\nEnter Choice: ");
@@ -1616,8 +1766,7 @@ int viewInventory(){
         break;
     case 9:
         clrscr();
-        printf("Goodbye!");
-        getch();
+        userWindow();
     default:
         printf("Choice Invalid");
         break;
@@ -1634,8 +1783,11 @@ int admin(char* username){
 //SAVES USER
 int savingUser(struct user log){
     char fileName[105] = "./PROJECT/FINAL/FILES/USERS/";
+    char cartLoc[105] = "./PROJECT/FINAL/FILES/LISTS/CART/";
     strcat(fileName, log.username);
     strcat(fileName, ".txt");
+    strcat(cartLoc, log.username);
+    strcat(cartLoc, ".txt");
 
     FILE *fptr = fopen(fileName, "a");
     if (fptr == NULL){
@@ -1645,6 +1797,11 @@ int savingUser(struct user log){
 
     fprintf(fptr, "%s,%s,%s,%s,%s\n", log.fullname, log.email, log.username, log.phoneNum, log.password);
     fclose(fptr);
+    
+    if(strncmp("admin_", log.username, 5) != 0) {
+        fptr = fopen(cartLoc, "a");
+        fclose(fptr); 
+    }
     return 0;
 }
 
@@ -1659,8 +1816,8 @@ int generateUser(char email[50], char userName[50]){
     return 0;
 }
 
-int regUser(){
- struct user log;
+void regUser(){
+    FILE *fptr;
 
     printf("\nEnter Fullname: ");
     gets(log.fullname);
@@ -1675,7 +1832,9 @@ int regUser(){
     gets(log.password);
 
     generateUser(log.email, log.username);
-
+    fptr = fopen("./PROJECT/FINAL/FILES/USERS/LIST.TXT", "a");
+    fprintf(fptr, "%s,", log.username);
+    fclose(fptr);
     printf("\nGenerated Username: %s\n", log.username);
 
     if (savingUser(log) == 0) {
@@ -1683,18 +1842,15 @@ int regUser(){
     } else {
         printf("Error saving user.\n");
     }
-
-    return 0;
 }
 
 int manageUsers(){
+    clrscr();
     int adminpref;
     printf("\n\t\t\t\t-----MANAGE USERS-----");
     printf("\n1. Register a User");
-    printf("\n2. Register an Admin");
-    printf("\n3. Remove a User");
-    printf("\n4. Remove an Admin");
-    printf("\n5. Exit");
+    printf("\n2. Remove a User");
+    printf("\n3. Go Back");
 
     printf("\nEnter Choice: ");
     scanf("%d", &adminpref);
@@ -1703,11 +1859,14 @@ int manageUsers(){
     switch(adminpref){
         case 1: 
         regUser();
+        adminWindow();
         break;
-      //  case 2:
-      //  case 3:
-      //  case 4: 
-      //  case 5:
+        case 2:
+        removeUser();
+        adminWindow();
+        break;
+        case 3:
+        adminWindow();
 
     }
 }
@@ -1715,8 +1874,10 @@ int manageUsers(){
 void userWindow(){
     int userpref = 0;
     char uname[9];
+    int receiptNo = 0;
     strncpy(uname, log.username, 9);
     uname[8] = '\0';
+    clrscr();
     printf("\nHello %s!", log.username);
             printf("\n\t\t\t\t-----USER WINDOW-----");
             printf("\n1. View Inventory");
@@ -1754,7 +1915,16 @@ void userWindow(){
                 break;
         case 5:
                 clrscr();
-                checkout(uname, 1);
+                receiptNo = checkout(uname, 1);
+                if (receiptNo == -1){
+                    printf("Your cart is empty!");
+                }
+                else { 
+                    printf("Successfully checked out with Receipt #%d\n", receiptNo);
+                    printf("NOTE: SAVE THIS NUMBER");
+                }
+                getch();
+                userWindow();
                 break;
         case 6:
                 clrscr();
@@ -1766,14 +1936,17 @@ void userWindow(){
                 break;
     }
 }
+
 void adminWindow(){
+    clrscr();
     int adminUI = 0;
     printf("\nWELCOME, %s!", log.username);
             printf("\n1. Manage Users");
-            printf("\n2. Edit Inventory");
+            printf("\n2. Add New Inventory Entry");
             printf("\n3. View Inventory");
             printf("\n4. View Build Requests");
-            printf("\n5. Return to Login");
+            printf("\n5. View Receipts");
+            printf("\n6. Return to Login");
 
             printf("\nEnter choice: ");
             scanf("%d", &adminUI);
@@ -1792,6 +1965,9 @@ void adminWindow(){
                 viewBuildRequests();
                 break;
                 case 5:
+                viewReceipts();
+                break;
+                case 6:
                 break;
                 default:
                 printf("Invalid Choice");
@@ -1799,11 +1975,12 @@ void adminWindow(){
             }
 }
 //LOG-IN FUNCTION
+//Allows the user to log-in to their account.
 int logIn(){
     char userInput[100], password[100], fileName[105] = "./PROJECT/FINAL/FILES/USERS/";
     char line[300];
     int flag = 0;
-
+    clrscr();
     printf("\n\t\t\t\t-----LOGIN-----");
     printf("\nEnter Username: ");
     gets(userInput);
@@ -1831,6 +2008,7 @@ int logIn(){
              { adminWindow(); }
         else { 
             restockNotify();
+            builtNotify();
             userWindow(); 
         }
         }
@@ -1839,46 +2017,28 @@ int logIn(){
         }
     return 0;
    }
- 
 
-//REGISTER FUNCTION
-int signUp() {
-
-    printf("\nEnter Fullname: ");
-    gets(log.fullname);
-
-    printf("Enter Email: ");
-    gets(log.email);
-
-    printf("Enter Contact Number: ");
-    gets(log.phoneNum);
-
-    printf("Enter Password: ");
-    gets(log.password);
-
-    generateUser(log.email, log.username);
-
-    printf("\nGenerated Username: %s\n", log.username);
-
-    if (savingUser(log) == 0) {
-        printf("User saved successfully!\n");
-    } else {
-        printf("Error saving user.\n");
-    }
-
-    return 0;
+//FIRST-BOOT FUNCTION
+void firstBootReg(){
+   FILE *fptr;
+   fptr = fopen("./PROJECT/FINAL/FILES/USERS/LIST.TXT", "r");
+   if (fptr == NULL){
+    fptr = fopen("./PROJECT/FINAL/FILES/USERS/LIST.TXT", "w");
+    fclose(fptr);
+    regUser();
+   } fclose(fptr);
 }
 
 //MAIN FUNCTION
 int main(){
-    clrscr();
     int choice;
+    firstBootReg();
 
     while(1){
+    clrscr();
     printf("\n\t\t\t\t-----BUILD IT-----");
     printf("\n1. Login");
     printf("\n2. Exit");
-    printf("\n3. Register");
     printf("\nEnter Choice: ");
     scanf("%d", &choice);
     while (getchar() != '\n');
@@ -1891,9 +2051,6 @@ int main(){
         printf("\nGoodbyee...");
         return 0;
         break;
-     case 3:
-     signUp();
-    break;
         default:
         printf("Invalid Choice");
         break;
