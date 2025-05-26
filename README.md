@@ -37,7 +37,7 @@ MENU NAVIGATION
            - Edit Details: ✔️
            - View Reservation History: ✔️
            - Delete Item ✔️
-    - View Build Requests: 
+    - View Build Requests: ✔️
     - Manage Users: ✔️ 
         - Register a User: ✔️
         - Register an Admin: ✔️
