@@ -1,5 +1,0 @@
-RECEIPT NO: 7
-BUYER: Rion Bustos
-NAME       | PRICE 
-Blue1TBD   | 2795  
-TOTAL PRICE: 2795

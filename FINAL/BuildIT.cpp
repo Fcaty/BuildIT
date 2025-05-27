@@ -41,8 +41,8 @@ struct user {
 }log;
 
 //Global Variables (Used for selection, editing, and deleting.)
-char listStore[999][10]; //Stores the selected LIST.TXT file.
-int listType[999]; //Stores the types of a selected LIST.TXT file. Commonly utilized by ReserveLists.
+char listStore[100][10]; //Stores the selected LIST.TXT file.
+int listType[100]; //Stores the types of a selected LIST.TXT file. Commonly utilized by ReserveLists.
 char PCBuildName[8][10]; //Stores parts of the PC Build List.
 char PCBuildType[8]; //Stores parts of the PC Build List Type, the 2nd number located in the .TXT file.
 struct Part read; //Stores a selected PARTS.TXT file.
@@ -1035,23 +1035,26 @@ void viewReserve(char name[10]){
 
 //Given a receipt #, this function allows the user to print out of any receipt, as long as it exists.
 void viewReceipts(){
-    clrscr();
     FILE *fptr;
     char recLoc[100] = "./PROJECT/FINAL/FILES/LISTS/RECEIPTS/";
-    char readString[75];
+    char readString[100];
     char select[10];
-    printf("Enter receipt no.: ");
-    scanf("%s", &select);
+    clrscr();
+    printf("===============================================================================\n");
+    printf("| Enter receipt no.: ");
+    scanf("%9s", select);
     strcat(recLoc, select);
     strcat(recLoc, ".TXT");
 
     fptr = fopen(recLoc, "r");
     if (fptr == NULL){
-        printf("Invalid receipt!\n");
+        printf("| Invalid receipt!\n");
     } else { 
-        while(fgets(readString, 75, fptr)) printf("%s", readString);
+        while(fgets(readString, 100, fptr)) printf("%s", readString);
         fclose(fptr); 
+        printf("\n===============================================================================");
     }
+    printf("| Press any key to stop viewing.");
     getch();
     adminWindow();
 }
@@ -1199,7 +1202,7 @@ void removeUser(){
     char listLoc[100] = "./PROJECT/FINAL/FILES/USERS/LIST.TXT";
     char BRLoc[100] = "./PROJECT/FINAL/FILES/LISTS/BR/";
     char cartLoc[100] = "./PROJECT/FINAL/FILES/LISTS/CART/";
-    char ReqLoc[100] = "./PROJECT/FINAL/FILES/LISTS/RL";
+    char ReqLoc[100] = "./PROJECT/FINAL/FILES/LISTS/RL/";
     char fileName[100] = "./PROJECT/FINAL/FILES/USERS/";
     clrscr();
     printf("===============================================================================\n");
@@ -1598,7 +1601,7 @@ int viewCart(){
    for (int i = 0; i < limit; i++){
         printf("| %d.",i+1);
         previewList(listStore[i], listType[i]);
-    }
+    } if(limit == 0) printf("| Nothing's inside!                                                           |\n");
     printf("===============================================================================\n");
     if (mode == 1){
         do{
@@ -1660,7 +1663,7 @@ void viewResList(){
     for(int i = 0; i < limit; i++){
         printf("| %d.", i+1);
         previewList(listStore[i], listType[i]);
-    }
+    } if(limit == 0) printf("| Nothing reserved!                                                           |\n");
     printf("===============================================================================\n");
     if (mode == 1){
         do{
@@ -2477,12 +2480,16 @@ int admin(char* username){
 
 //This function saves a user to the system once they are registered.
 int savingUser(struct user log){
-    char fileName[105] = "./PROJECT/FINAL/FILES/USERS/";
-    char cartLoc[105] = "./PROJECT/FINAL/FILES/LISTS/CART/";
+    char fileName[60] = "./PROJECT/FINAL/FILES/USERS/";
+    char cartLoc[60] = "./PROJECT/FINAL/FILES/LISTS/CART/";
+    char buildLoc[60] = "./PROJECT/FINAL/FILES/LISTS/BR/";
+    char reqLoc[60] = "./PROJECT/FINAL/FILES/LISTS/RL/";
     strcat(fileName, log.username);
     strcat(fileName, ".txt");
     strcat(cartLoc, log.username);
     strcat(cartLoc, ".txt");
+    strcat(buildLoc, log.username);
+    strcat(buildLoc, ".txt");
 
     FILE *fptr = fopen(fileName, "a");
     if (fptr == NULL){
@@ -2496,7 +2503,14 @@ int savingUser(struct user log){
     if(strncmp("admin_", log.username, 5) != 0) {
         fptr = fopen(cartLoc, "a");
         fclose(fptr); 
+        fptr = fopen(buildLoc, "w");
+        fprintf(fptr ,"EMPTY,4,EMPTY,2,EMPTY,3,EMPTY,5,EMPTY,1,EMPTY,6,EMPTY,8,EMPTY,7,");
+        fclose(fptr);
+        fptr = fopen(reqLoc, "w");
+        fclose(fptr);
     }
+
+  
     return 0;
 }
 

@@ -1,4 +1,0 @@
-RECEIPT NO: 5
-BUYER: Rion Bustos
-NAME       | PRICE 
-TOTAL PRICE: 0
