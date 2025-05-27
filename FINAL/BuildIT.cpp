@@ -61,6 +61,119 @@ struct PCBuild {
 
 //FUNCTIONS RELATED TO FILE-HANDLING START HERE
 
+void addList(char fileName[100], char productName[50]); //Adds the identifier of a .TXT file to its respective LIST.TXT.
+int selectList(char fileName[100]); //Selects a given LIST.TXT file containing strings and prepares it for viewing, deleting, or editing.
+int selectResList(char fileName[100]); //Selects a given LIST.TXT file containing strings and decimals, preparing it for viewing, deleting, or editing.
+void clearList(char fileName[100]);//Clears the array responsible for holding data from a LIST.TXT file. Always perform after using previewList();
+void deleteFromList(char listLoc[100], int selected, int limit); //Will delete an entry from a list .TXT file.
+void deleteFromResList(char listLoc[100], int selected, int limit); //Will delete an entry from a list .TXT file containing strings and decimals.
+void deleteFromBuildList(char listLoc[100], int selected); //Will delete an entry from a users PC Build List.
+void deleteFile(char name[10], int index, int limit, int type); //Will delete a selected file.
+void updateInfo(char name[10], int type); //Will update the info of a selected file.
+void readFile(char name[10], int type); //Selects a given .TXT file to read for editing values located within.
+int receiptEntry(char name[10], int type); //This function updates the stock value of anything that is checked out, returning the price of the item.
+
+//FUNCTIONS EXCLUSIVELY USED BY THE ADMIN START HERE
+
+void editFile(char name[10], int type); //This function allows the admin to edit the price or stock of a selected file.
+void createStorage(); //Creates new storage entries. (Case 1)
+void createCPU(); //Creates new CPU entries. (Case 2)
+void createGPU(); //Creates new GPU entries. (Case 3)
+void createMobo(); //Creates new Motherboard entries. (Case 4)
+void createRAM();//Creates new RAM Entries; (Case 5)
+void createFans(); //Creates new Fan Entries. (Case 6)
+void createPSU(); //Creates new PSU entries (Case 7)
+void createCooler(); //Creates new Cooler entries (Case 8)
+void editInventory(); //This function displays a menu that allows the user to choose which item they create.
+void viewReserve(char name[10]); //Allows the admin to view the reservation history of any item.
+void viewReceipts(); //Given a receipt #, this function allows the user to print out of any receipt, as long as it exists.
+void adminViewItem(int index, int type, int limit); //Displays the item view menu for admins.
+int viewRequest(char uName[9], int index, int delLimit); //Allows the admin to view a specific build request, and mark it for completion.
+void viewBuildRequests(); //Allows the admin to view and select submitted build requests.
+void removeUser(); //Allows the admin to remove users from the registered pool.
+void regUser(); //This function allows users to register into the system.
+int manageUsers(); //Allows the admin to register or remove users.
+
+//FUNCTIONS EXCLUSIVELY USED BY THE USER START HERE
+
+void reserveItem(char name[10], int type); //Allows the user to reserve a selected item.
+void addtoCart(char name[10], int type); //Allows the user to add a selected item to the cart.
+void addtoPCBuilder(char name[10], int type); //Allows the user to add a selected item to their Build List.
+void userViewItem(int index, int type); //Displays the item view menu for users.
+void submitRequest(char fileName[100], char uName[9]); //Allows the user to submit their build request, only when it is full.
+int checkout(char uname[9], int type); //This function allows the user to checkout all items in their Cart, creating a receipt in the process.
+void viewResList(); //Allows the user to view their reserved items list.
+int viewCart(); //Allows the user to view their cart.
+int viewPcBuilder(); //Allows the user to view their PC Build List.
+int viewInventory(); //This function displays a menu that allows the user to pick a type of items to look through
+
+
+//FUNCTIONS RELATED TO OUTPUT START HERE
+
+void previewList(char name[10], int type); //Will preview a given list by showing the brand, name, price, and stock of items.
+void displayItem(char name[10], int type); //Will display the full information of a selected entry from a list.
+void printBuildList(char name[10], int type); //Prints a user's PC Build Request List.
+int iStorage(); //Storage display list function.
+int iCPU(); //CPU display list function.
+int iGPU(); //GPU display list function.
+int iMotherboard(); //Motherboard display list function.
+int iRAM(); //RAM display list function.
+int iFans(); //Fans display list function.
+int iPSU(); //PSU display list function.
+int iCooler(); //Cooling display list function.
+
+//FUNCTIONS RELATED TO NOTIFICATIONS START HERE
+
+void restockNotify(); //Will read a users request list upon login. If items are in stock, a notification is sent and items from their requestlist will be moved to their cart.
+void builtNotify(); //Will read a users build list file. If the function reads "ACM", a notification is sent and their build request file will be deleted.
+ 
+//FUNCTIONS RELATED TO THE LOG-IN SEQUENCE START HERE.
+
+int admin(char* username); //This function checks whether a user is an admin or not.
+int savingUser(struct user log); //This function saves a user to the system once they are registered.
+int generateUser(char email[50], char userName[50]); //This function generates a username from a user's email upon registration by taking text before the "@" character. 
+int logIn(); //Allows the user or admin to log-in to their account.
+void firstBootReg(); //A function that only starts once when the program is first intialized. Allows the admin to make their account.
+
+//FUNCTIONS RELATED TO USER OR ADMIN WINDOWS START HERE
+
+void userWindow(); //Responsible for displaying the user window.
+void adminWindow(); //Responsible for displaying the admin window.
+
+//MAIN FUNCTION
+int main(){
+    int choice;
+    firstBootReg();
+
+    while(1){
+    clrscr();
+    printf("\n\t\t\t\t-----BUILD IT-----");
+    printf("\n1. Login");
+    printf("\n2. Exit");
+    printf("\nEnter Choice: ");
+    scanf("%d", &choice);
+    while (getchar() != '\n');
+
+    switch (choice){
+        case 1: 
+        logIn();
+        break;
+        case 2:
+        printf("\nGoodbyee...");
+        return 0;
+        break;
+        default:
+        printf("Invalid Choice");
+        break;
+    }
+}
+return 0;
+}
+
+//FULL CODE LOCATED BELOW
+//FUNCTIONS FOR FILE-HANDLING START HERE
+
+//Adds the identifier of a .TXT file to its respective LIST.TXT.
 void addList(char fileName[100], char productName[50]){
     FILE *fptr;
     fptr = fopen(fileName, "a");
@@ -127,6 +240,7 @@ void deleteFromList(char listLoc[100], int selected, int limit){
     } fclose(fptr);
 }
 
+//Will delete an entry from a list .TXT file containing strings and decimals.
 void deleteFromResList(char listLoc[100], int selected, int limit){
     FILE *fptr;
 
@@ -143,6 +257,7 @@ void deleteFromResList(char listLoc[100], int selected, int limit){
     } fclose(fptr);
 }
 
+//Will delete an entry from a users PC Build List.
 void deleteFromBuildList(char listLoc[100], int selected){
     FILE *fptr;
 
@@ -232,6 +347,7 @@ void deleteFile(char name[10], int index, int limit, int type){
     deleteFromList(listLoc, index, limit);
 }
 
+//Will update the info of a selected file.
 void updateInfo(char name[10], int type){
     FILE *fptr;
     char fileName[100] = "./PROJECT/FINAL/FILES/PARTS/";
@@ -303,7 +419,6 @@ void updateInfo(char name[10], int type){
     
 }
 
-
 //Selects a given .TXT file to read for editing values located within.
 void readFile(char name[10], int type){
     FILE *fptr;
@@ -366,6 +481,19 @@ void readFile(char name[10], int type){
     } fclose(fptr);
 }
 
+//This function updates the stock value of anything that is checked out, returning the price of the item.
+int receiptEntry(char name[10], int type){
+    readFile(name, type);
+    --read.stock;
+    updateInfo(name, type);
+    return read.price;
+}
+
+//FUNCTIONS FOR FILE-HANDLING END HERE
+
+//FUNCTIONS EXCLUSIVELY USED BY THE ADMIN START HERE
+
+//This function allows the admin to edit the price or stock of a selected file.
 void editFile(char name[10], int type){
     int choice = 0;
     readFile(name, type);
@@ -400,10 +528,8 @@ void editFile(char name[10], int type){
         printf("Invalid Input!");
     }
 }
-     
 
-//CREATES NEW STORAGE ENTRIES
-//CASE 1
+//Creates new storage entries. (Case 1)
 void createStorage(){
     FILE *fptr;
     char fileName[105] = "./PROJECT/FINAL/FILES/PARTS/STO/";
@@ -437,8 +563,7 @@ void createStorage(){
     fclose(fptr);
 }
 
-//CREATES NEW CPU ENTRIES
-//CASE 2
+//Creates new CPU entries. (Case 2)
 void createCPU(){
     FILE *fptr;
     char fileName[105] = "./PROJECT/FINAL/FILES/PARTS/CPU/";
@@ -472,8 +597,7 @@ void createCPU(){
     fclose(fptr);
 }
 
-//CREATES NEW GPU ENTRIES
-//CASE 3
+//Creates new GPU entries. (Case 3)
 void createGPU(){
     FILE *fptr;
     char fileName[105] = "./PROJECT/FINAL/FILES/PARTS/GPU/";
@@ -507,8 +631,7 @@ void createGPU(){
     fclose(fptr);
 }
 
-//CREATES NEW MOTHERBOARD ENTRIES
-//CASE 4
+//Creates new motherboard entries (Case 4)
 void createMobo(){
     FILE *fptr;
     char fileName[105] = "./PROJECT/FINAL/FILES/PARTS/MOBO/";
@@ -538,8 +661,7 @@ void createMobo(){
     fclose(fptr);
 }
 
-//CREATES NEW RAM ENTRIES
-//CASE 5
+//Creates new RAM Entries. (Case 5)
 void createRAM(){
     FILE *fptr;
     char fileName[105] = "./PROJECT/FINAL/FILES/PARTS/RAM/";
@@ -573,8 +695,7 @@ void createRAM(){
     fclose(fptr);
 }
 
-//CREATES NEW FAN ENTRIES
-//CASE 6
+//Creates new Fan Entries. (Case 6)
 void createFans(){
     FILE *fptr;
     char fileName[105] = "./PROJECT/FINAL/FILES/PARTS/FANS/";
@@ -609,8 +730,7 @@ void createFans(){
 
 }
 
-//CREATES NEW PSU ENTRIES
-//CASE 7
+//Creates new PSU entries (Case 7)
 void createPSU(){
     FILE *fptr;
     char fileName[105] = "./PROJECT/FINAL/FILES/PARTS/PSU/";
@@ -644,8 +764,7 @@ void createPSU(){
     fclose(fptr);
 }
 
-//CREATES NEW COOLER ENTRIES 
-//CASE 8
+//Creates new Cooler Entries (Case 8)
 void createCooler(){
     FILE *fptr;
     char fileName[105] = "./PROJECT/FINAL/FILES/PARTS/COOL/";
@@ -678,10 +797,736 @@ void createCooler(){
     fclose(fptr);
 }
 
+//This function displays a menu that allows the user to choose which item they create.
+void editInventory(){
+    int inventory;
+    clrscr();
+    printf("\n\t\t\t-----EDIT INVENTORY-----");
+    printf("\n1. Add Storage Entry");
+    printf("\n2. Add CPU Entry");
+    printf("\n3. Add GPU Entry");
+    printf("\n4. Add Motherboard Entry");
+    printf("\n5. Add RAM Entry");
+    printf("\n6. Add Fans Entry");
+    printf("\n7. Add PSU Entry");
+    printf("\n8. Add Cooler Entry");
+    printf("\n9. Go Back");
 
-//FILES RELATED TO OUTPUT START HERE
-void addtoCart(char name[10], int type);
+    printf("\n===============");
+    printf("\nEnter Choice: ");
+    scanf("%d", &inventory);
+    switch (inventory){
+    case 1:
+        clrscr();
+        createStorage();
+        editInventory();
+        break;
+    case 2:
+        clrscr();
+        createCPU();
+        editInventory();
+        break;
+     case 3: 
+        clrscr();
+        createGPU();
+        editInventory();
+        break;
+     case 4:
+        clrscr();
+        createMobo();
+        editInventory();
+        break;
+    case 5: 
+        clrscr();
+        createRAM();
+        editInventory();
+        break;
+    case 6: 
+        clrscr();
+        createFans();
+        editInventory();
+        break;
+    case 7:
+        clrscr();
+        createPSU();
+        editInventory();
+        break;
+    case 8:
+        clrscr();
+        createCooler();
+        editInventory();
+        break;
+    case 9:
+        clrscr();
+        adminWindow();
+        getch();
+        break;
+    default:
+        adminWindow();
+        break;
+    }
+}
 
+//Allows the admin to view the reservation history of any item.
+void viewReserve(char name[10]){
+    FILE *fptr;
+    char output[50];
+    int count = 0;
+    char fileName[100] = "./PROJECT/FINAL/FILES/LISTS/RH/";
+    strcat(fileName, name);
+    strcat(fileName, ".TXT");
+
+    fptr = fopen(fileName, "r");
+    while(fscanf(fptr, "%[^,],", output) == 1 ){
+        ++count;
+        printf("%d. %s\n", count, output);
+    }
+
+}
+
+//Given a receipt #, this function allows the user to print out of any receipt, as long as it exists.
+void viewReceipts(){
+    clrscr();
+    FILE *fptr;
+    char recLoc[100] = "./PROJECT/FINAL/FILES/LISTS/RECEIPTS/";
+    char readString[75];
+    char select[10];
+    printf("Enter receipt no.: ");
+    scanf("%s", &select);
+    strcat(recLoc, select);
+    strcat(recLoc, ".TXT");
+
+    fptr = fopen(recLoc, "r");
+    if (fptr == NULL){
+        printf("Invalid receipt!\n");
+    } else { 
+        while(fgets(readString, 75, fptr)) printf("%s", readString);
+        fclose(fptr); 
+    }
+    getch();
+    adminWindow();
+}
+
+//Displays the item view menu for admins.
+void adminViewItem(int index, int type, int limit){
+    int choice = 0;
+    clrscr();
+    printf("==============================================================================\n");
+    displayItem(listStore[index], type);
+    printf("\n============================================================================\n");
+    printf("1. View Reservations\n");
+    printf("2. Edit Item\n");
+    printf("3. Delete Item\n");
+    printf("4. Return");
+    printf("\nEnter Choice: ");
+    scanf("%d", &choice);
+
+    switch(choice){
+        case 1: 
+        viewReserve(listStore[index]);
+        viewInventory();
+        break;
+        case 2:
+        editFile(listStore[index], type);
+        viewInventory();
+        break;
+        case 3:
+        deleteFile(listStore[index], index, limit, type);
+        viewInventory();
+        break;
+        case 4:
+        viewInventory();
+        break;
+
+        default: 
+        break;
+    }
+}
+
+//Allows the admin to view a specific build request, and mark it for completion.
+int viewRequest(char uName[9], int index, int delLimit){
+    FILE *fptr;
+    int pcBuilder, mode;
+    char fileName[100] = "./PROJECT/FINAL/FILES/LISTS/BR/";
+    char fileLoc[100] = "./PROJECT/FINAL/FILES/LISTS/BR/LIST.TXT";
+    strcat(fileName, uName);
+    strcat(fileName, ".TXT");
+    clrscr();
+    printf("==========================================================================\n");
+    int limit = selectResList(fileName);
+    for(int i = 0; i < limit; i++){
+        printBuildList(listStore[i], listType[i]);
+    }
+    printf("\n========================================================================");
+    
+    printf("\n1. Mark Request as Accomplished\n");
+    printf("\n2. Return");
+    printf("\nEnter Choice: ");
+    scanf("%d", &pcBuilder);
+    switch(pcBuilder){
+        case 1: 
+        checkout(uName, 2); 
+        selectList(fileLoc);
+        deleteFromList(fileLoc, index, delLimit); 
+        fptr = fopen(fileName, "w");
+        fprintf(fptr, "ACM");
+        fclose(fptr);
+        break;
+        case 2:
+        adminWindow();
+        break;
+    }
+    
+    return 0;
+}
+
+//Allows the admin to view and select submitted build requests.
+void viewBuildRequests(){
+    clrscr();
+    FILE *fptr;
+    int selectBuild = 0;
+    char listLoc[100] = "./PROJECT/FINAL/FILES/LISTS/BR/LIST.TXT";
+    char uName[16];
+
+    int limit = selectList(listLoc);
+    for (int i = 0; i < limit; i++){
+        printf("Request #%d | UN: %s\n", i+1, listStore[i]);
+    } 
+
+    printf("Select list: ");
+    scanf("%d", &selectBuild);
+    strcpy(uName, listStore[selectBuild-1]);
+    viewRequest(uName, selectBuild-1, limit);
+
+}
+
+//Allows the admin to remove users from the registered pool.
+void removeUser(){
+    FILE *fptr;
+    int select;
+    char selected[9];
+    char listLoc[100] = "./PROJECT/FINAL/FILES/USERS/LIST.TXT";
+    char BRLoc[100] = "./PROJECT/FINAL/FILES/LISTS/BR/";
+    char cartLoc[100] = "./PROJECT/FINAL/FILES/LISTS/CART/";
+    char ReqLoc[100] = "./PROJECT/FINAL/FILES/LISTS/RL";
+    char fileName[100] = "./PROJECT/FINAL/FILES/USERS/";
+
+    int limit = selectList(listLoc);
+    for(int i = 0; i < limit; i++){
+        printf("%d. %s\n", i+1, listStore[i]);
+    }
+    printf("Select user to delete: ");
+    scanf("%d", &select);
+    strncpy(selected, listStore[select-1], 8);
+    selected[8] = '\0';
+    strcat(BRLoc, selected);
+    strcat(cartLoc, selected);
+    strcat(ReqLoc, selected);
+    strcat(fileName, selected);
+    strcat(BRLoc, ".TXT");
+    strcat(cartLoc, ".TXT");
+    strcat(ReqLoc, ".TXT");
+    strcat(fileName, ".TXT");
+    deleteFromList(listLoc, select - 1, limit);
+    remove(BRLoc);
+    remove(cartLoc);
+    remove(ReqLoc);
+    remove(fileName);
+}
+
+//This function allows users to register into the system.
+void regUser(){
+    FILE *fptr;
+
+    printf("\nEnter Fullname: ");
+    gets(log.fullname);
+
+    printf("Enter Email: ");
+    gets(log.email);
+
+    printf("Enter Contact Number: ");
+    gets(log.phoneNum);
+
+    printf("Enter Password: ");
+    gets(log.password);
+
+    generateUser(log.email, log.username);
+    fptr = fopen("./PROJECT/FINAL/FILES/USERS/LIST.TXT", "a");
+    fprintf(fptr, "%s,", log.username);
+    fclose(fptr);
+    printf("\nGenerated Username: %s\n", log.username);
+
+    if (savingUser(log) == 0) {
+        printf("User saved successfully!\n");
+    } else {
+        printf("Error saving user.\n");
+    }
+}
+
+//Allows the admin to register or remove users.
+int manageUsers(){
+    clrscr();
+    int adminpref;
+    printf("\n\t\t\t\t-----MANAGE USERS-----");
+    printf("\n1. Register a User");
+    printf("\n2. Remove a User");
+    printf("\n3. Go Back");
+
+    printf("\nEnter Choice: ");
+    scanf("%d", &adminpref);
+    while (getchar() != '\n');
+
+    switch(adminpref){
+        case 1: 
+        regUser();
+        adminWindow();
+        break;
+        case 2:
+        removeUser();
+        adminWindow();
+        break;
+        case 3:
+        adminWindow();
+
+    }
+}
+
+//FUNCTIONS EXCLUSIVELY USED BY THE ADMIN END HERE
+
+//FUNCTIONS EXCLUSIVELY USED BY THE USER START HERE
+
+//Allows the user to reserve a selected item.
+void reserveItem(char name[10], int type){
+    FILE *fptr;
+    char resList[50] = "./PROJECT/FINAL/FILES/LISTS/RL/";
+    char resHisto[50] = "./PROJECT/FINAL/FILES/LISTS/RH/";
+    char Name[9];
+    strncpy(Name, log.username, 8);
+    Name[8] = '\0';
+    strcat(resList, Name);
+    strcat(resList,".TXT");
+    strcat(resHisto, name);
+    strcat(resHisto, ".TXT");
+
+    fptr = fopen(resList,"a");
+    fprintf(fptr ,"%s,%d,", name, type);
+    fclose(fptr);
+
+    fptr = fopen(resHisto,"a");
+    fprintf(fptr, "%s,", log.fullname);
+    fclose(fptr);
+}
+
+//Allows the user to add a selected item to the cart.
+void addtoCart(char name[10], int type){
+    FILE *fptr;
+    char fileName[100] = "./PROJECT/FINAL/FILES/LISTS/CART/";
+    char Name[9];
+    strncpy(Name, log.username, 8);
+    Name[8] = '\0';
+    
+    strcat(fileName, Name);
+    strcat(fileName, ".TXT");
+
+    fptr = fopen(fileName, "a");
+    fprintf(fptr, "%s,%d,", name, type);
+    fclose(fptr);
+}
+
+//Allows the user to add a selected item to their Build List.
+void addtoPCBuilder(char name[10], int type){
+    FILE *fptr;
+    char fileName[100] = "./PROJECT/FINAL/FILES/LISTS/BR/";
+    char uName[9];
+    strncpy(uName, log.username, 8);
+    uName[8] = '\0';
+    strcat(fileName, uName);
+    strcat(fileName, ".TXT");
+    fptr = fopen(fileName, "r");
+    if ((fptr) == NULL){
+        fptr = fopen(fileName, "w");
+        fprintf(fptr ,"EMPTY,4,EMPTY,2,EMPTY,3,EMPTY,5,EMPTY,1,EMPTY,6,EMPTY,8,EMPTY,7,");
+        fclose(fptr);
+
+        fptr = fopen(fileName, "r");
+        fscanf(fptr, "%[^,],%d,%[^,],%d,%[^,],%d,%[^,],%d,%[^,],%d,%[^,],%d,%[^,],%d,%[^,],%d", 
+                    build.Mobo, &PCBuildType[0], build.CPU, &PCBuildType[1], build.GPU, &PCBuildType[2], build.RAM, &PCBuildType[3], build.Sto, &PCBuildType[4],
+                    build.Fans, &PCBuildType[5], build.Cooler, &PCBuildType[6], build.PSU, &PCBuildType[7]);
+        fclose(fptr);
+    } else {
+        
+        fscanf(fptr, "%[^,],%d,%[^,],%d,%[^,],%d,%[^,],%d,%[^,],%d,%[^,],%d,%[^,],%d,%[^,],%d", 
+                    build.Mobo, &PCBuildType[0], build.CPU, &PCBuildType[1], build.GPU, &PCBuildType[2], build.RAM, &PCBuildType[3], build.Sto, &PCBuildType[4],
+                    build.Fans, &PCBuildType[5], build.Cooler, &PCBuildType[6], build.PSU, &PCBuildType[7]);
+        fclose(fptr);
+    }
+
+    switch(type){
+       case 1: //storage
+       strcpy(build.Sto, name);
+       PCBuildType[4]= 1;
+       break;
+       case 2: //cpu
+       strcpy(build.CPU, name);
+       PCBuildType[1]= 2;
+       break;
+       case 3: //gpu
+       strcpy(build.GPU, name);
+       PCBuildType[2]= 3;
+       break;
+       case 4: //motherboard
+       strcpy(build.Mobo, name);
+       PCBuildType[0]= 4;
+       break;
+       case 5: //ram
+       strcpy(build.RAM, name);
+       PCBuildType[3]= 5;
+       break;
+       case 6: //fans
+       strcpy(build.Fans, name);
+       PCBuildType[5]= 6;
+       break;
+       case 7: //psu
+       strcpy(build.PSU, name);
+       PCBuildType[7]= 7;
+       break;
+       case 8:  //cooler
+       strcpy(build.Cooler, name);
+       PCBuildType[6]= 8;
+       break;
+    }
+
+    fptr = fopen(fileName, "w");
+    fprintf(fptr, "%s,%d,%s,%d,%s,%d,%s,%d,%s,%d,%s,%d,%s,%d,%s,%d,", 
+        build.Mobo, PCBuildType[0], build.CPU, PCBuildType[1], 
+        build.GPU, PCBuildType[2], build.RAM, PCBuildType[3], build.Sto, PCBuildType[4], build.Fans ,PCBuildType[5], 
+        build.Cooler, PCBuildType[6], build.PSU, PCBuildType[7]);
+    fclose(fptr);
+
+}
+
+//Displays the item view menu for users.
+void userViewItem(int index, int type){
+    int choice = 0;
+    clrscr();
+    printf("==============================================================================\n");
+    displayItem(listStore[index], type);
+    printf("\n============================================================================\n");
+    if(read.stock <= 0) {
+    printf("1. Reserve Item\n");
+    } else {
+        printf("1. Add Item to Cart\n");
+    }
+    printf("2. Add Item to PC Builder\n");
+    printf("3. Return");
+    do{
+        printf("\nEnter Choice: ");
+        scanf("%d", &choice);
+    }while(choice > 4 && choice < 0);
+
+    switch(choice){
+        case 1: 
+        if(read.stock <= 0) {
+            reserveItem(listStore[index], type);
+            viewInventory();
+        } else {
+            addtoCart(listStore[index], type); 
+            viewInventory();
+        }
+
+        break;
+        case 2:
+        addtoPCBuilder(listStore[index], type);
+        viewInventory();
+        break;
+        case 3:
+        viewInventory();
+        break;
+        default: 
+        break;
+    }
+}
+
+//Allows the user to submit their build request, only when it is full.
+void submitRequest(char fileName[100], char uName[9]){
+    FILE *fptr;
+    char check[10]; 
+    int buffer, flag = 0;
+    fptr = fopen(fileName, "r");
+    while(fscanf(fptr,"%[^,],%d,", check, buffer) == 2) {
+        if (strncmp("EMPTY", check, 5) == 0) flag++;
+    }
+
+    if(flag >= 1){
+        printf("%d missing entries detected!\nSubmission denied.\n", flag);
+    } else {
+       fptr = fopen("./PROJECT/FINAL/FILES/LISTS/BR/LIST.TXT", "a");
+       fprintf(fptr, "%s,", uName);
+    }
+}
+
+//This function allows the user to checkout all items in their Cart, creating a receipt in the process.
+int checkout(char uname[9], int type){
+    FILE *fptr;
+    int receiptNo = 0;
+    int outputNo = 0;
+    fptr = fopen("./PROJECT/FINAL/FILES/LISTS/RECEIPTS/NUMGEN.TXT", "r"); 
+    fscanf(fptr, "%d", &receiptNo);
+    outputNo = receiptNo;
+    fclose(fptr);
+
+    fptr = fopen("./PROJECT/FINAL/FILES/LISTS/RECEIPTS/NUMGEN.TXT", "w"); 
+    fprintf(fptr, "%d", ++receiptNo);
+    fclose(fptr);
+    char numGen[8];
+    sprintf(numGen, "%d", receiptNo);
+
+    char recLoc[100] = "./PROJECT/FINAL/FILES/LISTS/RECEIPTS/";
+    strcat(recLoc, numGen);
+    strcat(recLoc, ".TXT");
+    
+    char listLoc[100];
+
+    switch(type){
+    case 1: strcpy(listLoc,"./PROJECT/FINAL/FILES/LISTS/CART/"); break;
+    case 2: strcpy(listLoc,"./PROJECT/FINAL/FILES/LISTS/BR/"); break;
+    }
+
+    strcat(listLoc, uname);
+    strcat(listLoc, ".TXT");
+    int totalPayment = 0;
+    
+
+    int limit = selectResList(listLoc);
+    if(limit == 0) return -1;
+
+    fptr = fopen(recLoc, "w");
+    fprintf(fptr, "RECEIPT NO: %d\n", receiptNo);
+    fprintf(fptr, "BUYER: %s\n", log.fullname);
+    fprintf(fptr,"%-10s | %-6s\n", "NAME", "PRICE");
+    for(int i = 0; i < limit; i++){
+        readFile(listStore[i], listType[i]);
+        fprintf(fptr, "%-10s | %-6d\n", listStore[i], read.price);
+        totalPayment += receiptEntry(listStore[i], listType[i]);
+    }
+    fprintf(fptr, "TOTAL PRICE: %d", totalPayment);
+    fclose(fptr);
+    
+    fptr = fopen(listLoc, "w");
+    fclose(fptr);
+    
+    return outputNo+1;
+} 
+
+//Allows the user to view their cart.
+int viewCart(){
+   int cart, mode;
+   char fileName[100] = "./PROJECT/FINAL/FILES/LISTS/CART/";
+   char Name[9];
+   strncpy(Name, log.username, 8);
+   Name[8] = '\0';
+
+   strcat(fileName, Name);
+   strcat(fileName, ".TXT");
+   clrscr();
+    
+   do{
+    printf("1. Delete Mode\n");
+    printf("2. View Mode\n");
+    printf("Select mode: ");
+    scanf("%d", &mode);
+    } while(mode != 1 && mode != 2);
+   
+    clrscr(); 
+   printf("%-15s %-45s %-6s %-6s\n","BRAND", "NAME", "PRICE", "STOCK");
+   printf("==========================================================================\n");
+   int limit = selectResList(fileName);
+   for (int i = 0; i < limit; i++){
+        printf("%d.",i+1);
+        previewList(listStore[i], listType[i]);
+    }
+    printf("\n========================================================================\n");
+    if (mode == 1){
+        printf("Select item for deletion: ");
+        scanf("%d", &cart);
+        deleteFromResList(fileName, cart-1, limit); 
+        userWindow();
+    }
+    else {
+        printf("Enter any key to return: ");
+        getch();
+        userWindow();
+    }
+    return 0;
+}
+
+//Allows the user to view their reserved items list.
+void viewResList(){
+    int resList, mode;
+    char fileName[100] = "./PROJECT/FINAL/FILES/LISTS/RL/";
+    char Name[9];
+    strncpy(Name, log.username, 8);
+    Name[8] = '\0';
+    strcat(fileName, Name);
+    strcat(fileName, ".TXT");
+    clrscr();
+
+    do{
+    printf("1. Delete Mode\n");
+    printf("2. View Mode\n");
+    printf("Select mode: ");
+    scanf("%d", &mode);
+    } while(mode != 1 && mode != 2);
+
+    clrscr();
+    printf("%-15s %-45s %-6s %-6s\n","BRAND", "NAME", "PRICE", "STOCK");
+    printf("==========================================================================\n");
+    int limit = selectResList(fileName);
+    for(int i = 0; i < limit; i++){
+        printf("%d.", i+1);
+        previewList(listStore[i], listType[i]);
+    }
+    printf("\n========================================================================\n");
+    if (mode == 1){
+        printf("\nSelect item for deletion: ");    
+        scanf("%d", &resList);
+        deleteFromResList(fileName, resList-1, limit); 
+        userWindow();
+
+    } else {
+        printf("Enter any key to return: \n"); 
+        getch(); 
+        userWindow();
+    }
+}
+
+//Allows the user to view their PC Build List.
+int viewPcBuilder(){
+    int pcBuilder, mode;
+    char fileName[100] = "./PROJECT/FINAL/FILES/LISTS/BR/";
+    char uName[9];
+    char YorN;
+    strncpy(uName, log.username, 8);
+    uName[8] = '\0';
+    strcat(fileName, uName);
+    strcat(fileName, ".TXT");
+
+    do{
+        printf("1. Delete Mode\n");
+        printf("2. Submission Mode\n");
+        printf("3. View Mode\n");
+        printf("Select Mode: ");
+        scanf("%d", &mode);
+    } while(mode > 3 && mode < 1);
+
+    clrscr();
+    printf("==========================================================================\n");
+    int limit = selectResList(fileName);
+    for(int i = 0; i < limit; i++){
+        printBuildList(listStore[i], listType[i]);
+    }
+    printf("\n========================================================================\n");
+    switch(mode){
+        case 1: 
+            printf("Enter Choice: ");
+            scanf("%d", &pcBuilder);
+            deleteFromBuildList(fileName, pcBuilder);
+            userWindow();
+            break;
+        
+        case 2:
+            do{
+                printf("Are you sure you would like to submit? [Y/N]: ");
+                scanf("\n%c", &YorN);
+            }while(YorN != 'Y' && YorN != 'N');
+            
+            if(YorN == 'Y') {
+                submitRequest(fileName, uName); 
+                userWindow(); 
+            }
+            else {
+                userWindow();
+            }
+            break;
+
+        case 3: 
+            printf("Press any key to return: ");
+            getch();
+            userWindow();
+            break;
+
+    }
+
+    return 0;
+}
+
+//This function displays a menu that allows the user to pick a type of items to look through.
+int viewInventory(){
+    int inventory;
+    clrscr();
+    printf("\n\t\t\t-----INVENTORY-----");
+    printf("\n1. Storage");
+    printf("\n2. CPU");
+    printf("\n3. GPU");
+    printf("\n4. Motherboard");
+    printf("\n5. RAM");
+    printf("\n6. Fans");
+    printf("\n7. PSU");
+    printf("\n8. Cooler");
+    printf("\n9. Return");
+
+    printf("\n===============");
+    printf("\nEnter Choice: ");
+    scanf("%d", &inventory);
+
+    switch (inventory){
+    case 1:
+        clrscr();
+        iStorage();
+        break;
+    case 2:
+        clrscr();
+        iCPU();
+        break;
+     case 3: 
+        clrscr();
+        iGPU();
+        break;
+     case 4:
+        clrscr();
+        iMotherboard();
+        break;
+    case 5: 
+        clrscr();
+        iRAM();
+        break;
+    case 6: 
+        clrscr();
+        iFans();
+        break;
+    case 7:
+        clrscr();
+        iPSU();
+        break;
+    case 8:
+        clrscr();
+        iCooler();
+        break;
+    case 9:
+        clrscr();
+        userWindow();
+    default:
+        printf("Choice Invalid");
+        break;
+    }
+    return 0;
+}
+
+//FUNCTIONS EXCLUSIVELY USED BY THE USER END HERE
+
+//FUNCTIONS RELATED TO OUTPUT START HERE
+
+//Will preview a given list by showing the brand, name, price, and stock of items.
 void previewList(char name[10], int type){
     FILE *fptr;
     struct Part lister;
@@ -723,7 +1568,8 @@ void previewList(char name[10], int type){
     fclose(fptr);
 }
 
-void displayItem(char name[10], int type){
+//Will display the full information of a selected entry from a list.
+void displayItem(char name[10], int type){ 
     FILE *fptr;
     struct Part lister;
     
@@ -851,6 +1697,7 @@ void displayItem(char name[10], int type){
     }fclose(fptr);
 }
 
+//Prints a users PC Build Request List.
 void printBuildList(char name[10], int type){
     FILE *fptr;
     struct Part lister;
@@ -907,6 +1754,164 @@ void printBuildList(char name[10], int type){
     }
 }
 
+//Storage display list function.
+int iStorage(){
+    int storage;
+    clrscr();
+    
+    printf("%-15s %-45s %-6s %-6s\n","BRAND", "NAME", "PRICE", "STOCK");
+    printf("==============================================================================\n");
+    int limit = selectList("./PROJECT/FINAL/FILES/PARTS/STO/LIST.TXT");
+       for(int i = 0; i < limit; i++){
+            printf("%d. ", i+1);
+         previewList(listStore[i], 1);
+       }
+    printf("\n=============================================================================");
+    printf("\nEnter Choice: ");
+    scanf("%d", &storage);
+    if(admin(log.username)) adminViewItem(storage-1,1,limit); //Admin Command
+    else userViewItem(storage-1,1); //User Command
+    return 0;
+}
+
+//CPU display list function.
+int iCPU(){
+    int cpu;
+    clrscr();
+    printf("%-15s %-45s %-6s %-6s\n","BRAND", "NAME", "PRICE", "STOCK");
+    printf("==============================================================================\n");
+    int limit = selectList("./PROJECT/FINAL/FILES/PARTS/CPU/LIST.TXT");
+        for(int i = 0; i < limit; i++){
+            printf("%d. ", i+1);
+            previewList(listStore[i], 2);
+        }
+    printf("\n============================================================================");
+    printf("\nEnter Choice: ");
+    scanf("%d", &cpu);
+    if(admin(log.username)) adminViewItem(cpu-1,2,limit);
+    else userViewItem(cpu-1,2);
+      return 0;
+}
+
+//GPU display list function.
+int iGPU(){
+    int gpu;
+    clrscr();
+    printf("%-15s %-45s %-6s %-6s\n","BRAND", "NAME", "PRICE", "STOCK");
+    printf("==============================================================================\n");
+    int limit = selectList("./PROJECT/FINAL/FILES/PARTS/GPU/LIST.TXT");
+        for(int i = 0; i < limit; i++){
+            printf("%d. ", i+1);
+            previewList(listStore[i], 3);
+        }
+    printf("\n============================================================================");
+    printf("\nEnter Choice: ");
+    scanf("%d", &gpu);
+    if(admin(log.username)) adminViewItem(gpu-1,3,limit);
+    else userViewItem(gpu-1,3);
+      return 0;
+}
+
+//Motherboard display list function.
+int iMotherboard(){
+    int motherboard;
+    clrscr();
+    printf("%-15s %-45s %-6s %-6s\n","BRAND", "NAME", "PRICE", "STOCK");
+    printf("===============================================================================\n");
+    int limit = selectList("./PROJECT/FINAL/FILES/PARTS/MOBO/LIST.TXT");
+        for(int i = 0; i < limit; i++){
+            printf("%d. ", i+1);
+            previewList(listStore[i], 4);
+        }
+    printf("\n=============================================================================");
+    printf("\nEnter Choice: ");
+    scanf("%d", &motherboard);
+    if(admin(log.username)) adminViewItem(motherboard-1,4,limit);
+    else userViewItem(motherboard-1,4);
+      return 0;
+}
+
+//RAM display list function.
+int iRAM(){
+    int ram;
+    clrscr();
+    printf("%-15s %-45s %-6s %-6s\n","BRAND", "NAME", "PRICE", "STOCK");
+    printf("==============================================================================\n");
+    int limit = selectList("./PROJECT/FINAL/FILES/PARTS/RAM/LIST.TXT");
+        for(int i = 0; i < limit; i++){
+            printf("%d. ", i+1);
+            previewList(listStore[i], 5);
+        }
+    printf("\n============================================================================");
+    printf("\nEnter Choice: ");
+    scanf("%d", &ram);
+    if(admin(log.username)) adminViewItem(ram-1,5,limit);
+    else userViewItem(ram-1,5);
+      return 0;
+}
+
+//Fans display list function.
+int iFans(){
+    int fans;
+    clrscr();
+    printf("%-15s %-45s %-6s %-6s\n","BRAND", "NAME", "PRICE", "STOCK");
+    printf("==============================================================================\n");
+    int limit = selectList("./PROJECT/FINAL/FILES/PARTS/FANS/LIST.TXT");
+        for(int i = 0; i < limit; i++){
+            printf("%d. ", i+1);
+            previewList(listStore[i], 6);
+        }
+    printf("\n============================================================================");
+    printf("\nEnter Choice: ");
+    scanf("%d", &fans);
+    if(admin(log.username)) adminViewItem(fans-1,6,limit);
+    else userViewItem(fans-1,6);
+  return 0;
+}
+
+//PSU display list function.
+int iPSU(){
+    int psu;
+    clrscr();
+    printf("%-15s %-45s %-6s %-6s\n","BRAND", "NAME", "PRICE", "STOCK");
+    printf("==============================================================================\n");
+    int limit = selectList("./PROJECT/FINAL/FILES/PARTS/PSU/LIST.TXT");
+        for(int i = 0; i < limit; i++){
+            printf("%d. ", i+1);
+            previewList(listStore[i], 7);
+        }
+    printf("\n============================================================================");
+    printf("\nEnter Choice: ");
+    scanf("%d", &psu);
+    if(admin(log.username)) adminViewItem(psu-1,7,limit);
+    else userViewItem(psu-1,7);
+      return 0;
+}
+
+//Cooling display list function.
+int iCooler(){
+    int cooler;
+    clrscr();
+    printf("%-15s %-45s %-6s %-6s\n","BRAND", "NAME", "PRICE", "STOCK");
+    printf("==============================================================================\n");
+    int limit = selectList("./PROJECT/FINAL/FILES/PARTS/COOL/LIST.TXT");
+        for(int i = 0; i < limit; i++){
+            printf("%d. ", i+1);
+            previewList(listStore[i], 8);
+        }
+    printf("\n============================================================================");
+    printf("\nEnter Choice: ");
+    scanf("%d", &cooler);
+    if(admin(log.username)) adminViewItem(cooler-1,8,limit);
+    else userViewItem(cooler-1,8);
+    return 0;
+}
+
+//FUNCTIONS RELATED TO OUTPUT END HERE
+
+//FUNCTIONS RELATED TO NOTIFICATIONS START HERE
+
+//Will read a users request list upon login. If items are in stock, a notification is sent and items from their requestlist will be moved to their cart.
 void restockNotify(){
     char listLoc[100] = "./PROJECT/FINAL/FILES/LISTS/RL/";
     char Name[9];
@@ -936,6 +1941,7 @@ void restockNotify(){
 
 }
 
+//Will read a users build list file. If the function reads "ACM", a notification is sent and their build request file will be deleted.
 void builtNotify(){
     FILE *fptr;
     char brLoc[100] = "./PROJECT/FINAL/FILES/LISTS/BR/";
@@ -958,829 +1964,16 @@ void builtNotify(){
 
 }
 
+//FUNCTIONS RELATED TO NOTIFICATIONS END HERE
 
+//FUNCTIONS RELATED TO THE LOG-IN SEQUENCE START HERE
 
-//ADMIN SPECIFIC FUNCTIONS START HERE
-void adminWindow();
-int viewInventory();
-void editInventory(){
-    int inventory;
-    clrscr();
-    printf("\n\t\t\t-----EDIT INVENTORY-----");
-    printf("\n1. Add Storage Entry");
-    printf("\n2. Add CPU Entry");
-    printf("\n3. Add GPU Entry");
-    printf("\n4. Add Motherboard Entry");
-    printf("\n5. Add RAM Entry");
-    printf("\n6. Add Fans Entry");
-    printf("\n7. Add PSU Entry");
-    printf("\n8. Add Cooler Entry");
-    printf("\n9. Go Back");
-
-    printf("\n===============");
-    printf("\nEnter Choice: ");
-    scanf("%d", &inventory);
-    switch (inventory){
-    case 1:
-        clrscr();
-        createStorage();
-        editInventory();
-        break;
-    case 2:
-        clrscr();
-        createCPU();
-        editInventory();
-        break;
-     case 3: 
-        clrscr();
-        createGPU();
-        editInventory();
-        break;
-     case 4:
-        clrscr();
-        createMobo();
-        editInventory();
-        break;
-    case 5: 
-        clrscr();
-        createRAM();
-        editInventory();
-        break;
-    case 6: 
-        clrscr();
-        createFans();
-        editInventory();
-        break;
-    case 7:
-        clrscr();
-        createPSU();
-        editInventory();
-        break;
-    case 8:
-        clrscr();
-        createCooler();
-        editInventory();
-        break;
-    case 9:
-        clrscr();
-        adminWindow();
-        getch();
-        break;
-    default:
-        adminWindow();
-        break;
-    }
-}
-
-int admin(char* username);
-
-void viewReserve(char name[10]){
-    FILE *fptr;
-    char output[50];
-    int count = 0;
-    char fileName[100] = "./PROJECT/FINAL/FILES/LISTS/RH/";
-    strcat(fileName, name);
-    strcat(fileName, ".TXT");
-
-    fptr = fopen(fileName, "r");
-    while(fscanf(fptr, "%[^,],", output) == 1 ){
-        ++count;
-        printf("%d. %s\n", count, output);
-    }
-
-}
-
-void viewReceipts(){
-    clrscr();
-    FILE *fptr;
-    char recLoc[100] = "./PROJECT/FINAL/FILES/LISTS/RECEIPTS/";
-    char readString[75];
-    char select[10];
-    printf("Enter receipt no.: ");
-    scanf("%s", &select);
-    strcat(recLoc, select);
-    strcat(recLoc, ".TXT");
-
-    fptr = fopen(recLoc, "r");
-    if (fptr == NULL){
-        printf("Invalid receipt!\n");
-    } else { 
-        while(fgets(readString, 75, fptr)) printf("%s", readString);
-        fclose(fptr); 
-    }
-    getch();
-    adminWindow();
-}
-
-void adminViewItem(int index, int type, int limit){
-    int choice = 0;
-    clrscr();
-    printf("==============================================================================\n");
-    displayItem(listStore[index], type);
-    printf("\n============================================================================\n");
-    printf("1. View Reservations\n");
-    printf("2. Edit Item\n");
-    printf("3. Delete Item\n");
-    printf("4. Return");
-    printf("\nEnter Choice: ");
-    scanf("%d", &choice);
-
-    switch(choice){
-        case 1: 
-        viewReserve(listStore[index]);
-        viewInventory();
-        break;
-        case 2:
-        editFile(listStore[index], type);
-        viewInventory();
-        break;
-        case 3:
-        deleteFile(listStore[index], index, limit, type);
-        viewInventory();
-        break;
-        case 4:
-        viewInventory();
-        break;
-
-        default: 
-        break;
-    }
-}
-int checkout(char uname[9], int type);
-
-int viewRequest(char uName[9], int index, int delLimit){
-    FILE *fptr;
-    int pcBuilder, mode;
-    char fileName[100] = "./PROJECT/FINAL/FILES/LISTS/BR/";
-    char fileLoc[100] = "./PROJECT/FINAL/FILES/LISTS/BR/LIST.TXT";
-    strcat(fileName, uName);
-    strcat(fileName, ".TXT");
-    clrscr();
-    printf("==========================================================================\n");
-    int limit = selectResList(fileName);
-    for(int i = 0; i < limit; i++){
-        printBuildList(listStore[i], listType[i]);
-    }
-    printf("\n========================================================================");
-    
-    printf("\n1. Mark Request as Accomplished\n");
-    printf("\n2. Return");
-    printf("\nEnter Choice: ");
-    scanf("%d", &pcBuilder);
-    switch(pcBuilder){
-        case 1: 
-        checkout(uName, 2); 
-        selectList(fileLoc);
-        deleteFromList(fileLoc, index, delLimit); 
-        fptr = fopen(fileName, "w");
-        fprintf(fptr, "ACM");
-        fclose(fptr);
-        break;
-        case 2:
-        adminWindow();
-        break;
-    }
-    
-    return 0;
-}
-
-void viewBuildRequests(){
-    clrscr();
-    FILE *fptr;
-    int selectBuild = 0;
-    char listLoc[100] = "./PROJECT/FINAL/FILES/LISTS/BR/LIST.TXT";
-    char uName[16];
-
-    int limit = selectList(listLoc);
-    for (int i = 0; i < limit; i++){
-        printf("Request #%d | UN: %s\n", i+1, listStore[i]);
-    } 
-
-    printf("Select list: ");
-    scanf("%d", &selectBuild);
-    strcpy(uName, listStore[selectBuild-1]);
-    viewRequest(uName, selectBuild-1, limit);
-
-}
-
-void removeUser(){
-    FILE *fptr;
-    int select;
-    char selected[9];
-    char listLoc[100] = "./PROJECT/FINAL/FILES/USERS/LIST.TXT";
-    char BRLoc[100] = "./PROJECT/FINAL/FILES/LISTS/BR/";
-    char cartLoc[100] = "./PROJECT/FINAL/FILES/LISTS/CART/";
-    char ReqLoc[100] = "./PROJECT/FINAL/FILES/LISTS/RL";
-    char fileName[100] = "./PROJECT/FINAL/FILES/USERS/";
-
-    int limit = selectList(listLoc);
-    for(int i = 0; i < limit; i++){
-        printf("%d. %s\n", i+1, listStore[i]);
-    }
-    printf("Select user to delete: ");
-    scanf("%d", &select);
-    strncpy(selected, listStore[select-1], 8);
-    selected[8] = '\0';
-    strcat(BRLoc, selected);
-    strcat(cartLoc, selected);
-    strcat(ReqLoc, selected);
-    strcat(fileName, selected);
-    strcat(BRLoc, ".TXT");
-    strcat(cartLoc, ".TXT");
-    strcat(ReqLoc, ".TXT");
-    strcat(fileName, ".TXT");
-    deleteFromList(listLoc, select - 1, limit);
-    remove(BRLoc);
-    remove(cartLoc);
-    remove(ReqLoc);
-    remove(fileName);
-}
-
-//USER SPECIFIC FUNCTIONS START HERE
-//TODO: ERROR HANDLING FOR NUMBERS 0 AND BELOW, AND THOSE EXCEEDING AVAILABLE OPTIONS.
-int viewInventory();
-int logIn();
-void userWindow();
-void adminWindow();
-
-void reserveItem(char name[10], int type){
-    FILE *fptr;
-    char resList[50] = "./PROJECT/FINAL/FILES/LISTS/RL/";
-    char resHisto[50] = "./PROJECT/FINAL/FILES/LISTS/RH/";
-    char Name[9];
-    strncpy(Name, log.username, 8);
-    Name[8] = '\0';
-    strcat(resList, Name);
-    strcat(resList,".TXT");
-    strcat(resHisto, name);
-    strcat(resHisto, ".TXT");
-
-    fptr = fopen(resList,"a");
-    fprintf(fptr ,"%s,%d,", name, type);
-    fclose(fptr);
-
-    fptr = fopen(resHisto,"a");
-    fprintf(fptr, "%s,", log.fullname);
-    fclose(fptr);
-}
-
-void addtoCart(char name[10], int type){
-    FILE *fptr;
-    char fileName[100] = "./PROJECT/FINAL/FILES/LISTS/CART/";
-    char Name[9];
-    strncpy(Name, log.username, 8);
-    Name[8] = '\0';
-    
-    strcat(fileName, Name);
-    strcat(fileName, ".TXT");
-
-    fptr = fopen(fileName, "a");
-    fprintf(fptr, "%s,%d,", name, type);
-    fclose(fptr);
-}
-
-void addtoPCBuilder(char name[10], int type){
-    FILE *fptr;
-    char fileName[100] = "./PROJECT/FINAL/FILES/LISTS/BR/";
-    char uName[9];
-    strncpy(uName, log.username, 8);
-    uName[8] = '\0';
-    strcat(fileName, uName);
-    strcat(fileName, ".TXT");
-    fptr = fopen(fileName, "r");
-    if ((fptr) == NULL){
-        fptr = fopen(fileName, "w");
-        fprintf(fptr ,"EMPTY,4,EMPTY,2,EMPTY,3,EMPTY,5,EMPTY,1,EMPTY,6,EMPTY,8,EMPTY,7,");
-        fclose(fptr);
-
-        fptr = fopen(fileName, "r");
-        fscanf(fptr, "%[^,],%d,%[^,],%d,%[^,],%d,%[^,],%d,%[^,],%d,%[^,],%d,%[^,],%d,%[^,],%d", 
-                    build.Mobo, &PCBuildType[0], build.CPU, &PCBuildType[1], build.GPU, &PCBuildType[2], build.RAM, &PCBuildType[3], build.Sto, &PCBuildType[4],
-                    build.Fans, &PCBuildType[5], build.Cooler, &PCBuildType[6], build.PSU, &PCBuildType[7]);
-        fclose(fptr);
-    } else {
-        
-        fscanf(fptr, "%[^,],%d,%[^,],%d,%[^,],%d,%[^,],%d,%[^,],%d,%[^,],%d,%[^,],%d,%[^,],%d", 
-                    build.Mobo, &PCBuildType[0], build.CPU, &PCBuildType[1], build.GPU, &PCBuildType[2], build.RAM, &PCBuildType[3], build.Sto, &PCBuildType[4],
-                    build.Fans, &PCBuildType[5], build.Cooler, &PCBuildType[6], build.PSU, &PCBuildType[7]);
-        fclose(fptr);
-    }
-
-    switch(type){
-       case 1: //storage
-       strcpy(build.Sto, name);
-       PCBuildType[4]= 1;
-       break;
-       case 2: //cpu
-       strcpy(build.CPU, name);
-       PCBuildType[1]= 2;
-       break;
-       case 3: //gpu
-       strcpy(build.GPU, name);
-       PCBuildType[2]= 3;
-       break;
-       case 4: //motherboard
-       strcpy(build.Mobo, name);
-       PCBuildType[0]= 4;
-       break;
-       case 5: //ram
-       strcpy(build.RAM, name);
-       PCBuildType[3]= 5;
-       break;
-       case 6: //fans
-       strcpy(build.Fans, name);
-       PCBuildType[5]= 6;
-       break;
-       case 7: //psu
-       strcpy(build.PSU, name);
-       PCBuildType[7]= 7;
-       break;
-       case 8:  //cooler
-       strcpy(build.Cooler, name);
-       PCBuildType[6]= 8;
-       break;
-    }
-
-    fptr = fopen(fileName, "w");
-    fprintf(fptr, "%s,%d,%s,%d,%s,%d,%s,%d,%s,%d,%s,%d,%s,%d,%s,%d,", 
-        build.Mobo, PCBuildType[0], build.CPU, PCBuildType[1], 
-        build.GPU, PCBuildType[2], build.RAM, PCBuildType[3], build.Sto, PCBuildType[4], build.Fans ,PCBuildType[5], 
-        build.Cooler, PCBuildType[6], build.PSU, PCBuildType[7]);
-    fclose(fptr);
-
-}
-
-void userViewItem(int index, int type){
-    int choice = 0;
-    clrscr();
-    printf("==============================================================================\n");
-    displayItem(listStore[index], type);
-    printf("\n============================================================================\n");
-    if(read.stock <= 0) {
-    printf("1. Reserve Item\n");
-    } else {
-        printf("1. Add Item to Cart\n");
-    }
-    printf("2. Add Item to PC Builder\n");
-    printf("3. Return");
-    do{
-        printf("\nEnter Choice: ");
-        scanf("%d", &choice);
-    }while(choice > 4 && choice < 0);
-
-    switch(choice){
-        case 1: 
-        if(read.stock <= 0) {
-            reserveItem(listStore[index], type);
-            viewInventory();
-        } else {
-            addtoCart(listStore[index], type); 
-            viewInventory();
-        }
-
-        break;
-        case 2:
-        addtoPCBuilder(listStore[index], type);
-        viewInventory();
-        break;
-        case 3:
-        viewInventory();
-        break;
-        default: 
-        break;
-    }
-}
-
-void submitRequest(char fileName[100], char uName[9]){
-    FILE *fptr;
-    char check[10]; 
-    int buffer, flag = 0;
-    fptr = fopen(fileName, "r");
-    while(fscanf(fptr,"%[^,],%d,", check, buffer) == 2) {
-        if (strncmp("EMPTY", check, 5) == 0) flag++;
-    }
-
-    if(flag >= 1){
-        printf("%d missing entries detected!\nSubmission denied.\n", flag);
-    } else {
-       fptr = fopen("./PROJECT/FINAL/FILES/LISTS/BR/LIST.TXT", "a");
-       fprintf(fptr, "%s,", uName);
-    }
-}
-
-int receiptEntry(char name[10], int type){
-    readFile(name, type);
-    --read.stock;
-    updateInfo(name, type);
-    return read.price;
-}
-
-int checkout(char uname[9], int type){
-    FILE *fptr;
-    int receiptNo = 0;
-    int outputNo = 0;
-    fptr = fopen("./PROJECT/FINAL/FILES/LISTS/RECEIPTS/NUMGEN.TXT", "r"); 
-    fscanf(fptr, "%d", &receiptNo);
-    outputNo = receiptNo;
-    fclose(fptr);
-
-    fptr = fopen("./PROJECT/FINAL/FILES/LISTS/RECEIPTS/NUMGEN.TXT", "w"); 
-    fprintf(fptr, "%d", ++receiptNo);
-    fclose(fptr);
-    char numGen[8];
-    sprintf(numGen, "%d", receiptNo);
-
-    char recLoc[100] = "./PROJECT/FINAL/FILES/LISTS/RECEIPTS/";
-    strcat(recLoc, numGen);
-    strcat(recLoc, ".TXT");
-    
-    char listLoc[100];
-
-    switch(type){
-    case 1: strcpy(listLoc,"./PROJECT/FINAL/FILES/LISTS/CART/"); break;
-    case 2: strcpy(listLoc,"./PROJECT/FINAL/FILES/LISTS/BR/"); break;
-    }
-
-    strcat(listLoc, uname);
-    strcat(listLoc, ".TXT");
-    int totalPayment = 0;
-    
-
-    int limit = selectResList(listLoc);
-    if(limit == 0) return -1;
-
-    fptr = fopen(recLoc, "w");
-    fprintf(fptr, "RECEIPT NO: %d\n", receiptNo);
-    fprintf(fptr, "BUYER: %s\n", log.fullname);
-    fprintf(fptr,"%-10s | %-6s\n", "NAME", "PRICE");
-    for(int i = 0; i < limit; i++){
-        readFile(listStore[i], listType[i]);
-        fprintf(fptr, "%-10s | %-6d\n", listStore[i], read.price);
-        totalPayment += receiptEntry(listStore[i], listType[i]);
-    }
-    fprintf(fptr, "TOTAL PRICE: %d", totalPayment);
-    fclose(fptr);
-    
-    fptr = fopen(listLoc, "w");
-    fclose(fptr);
-    
-    return outputNo+1;
-} 
-
-int viewCart(){
-   int cart, mode;
-   char fileName[100] = "./PROJECT/FINAL/FILES/LISTS/CART/";
-   char Name[9];
-   strncpy(Name, log.username, 8);
-   Name[8] = '\0';
-
-   strcat(fileName, Name);
-   strcat(fileName, ".TXT");
-   clrscr();
-    
-   do{
-    printf("1. Delete Mode\n");
-    printf("2. View Mode\n");
-    printf("Select mode: ");
-    scanf("%d", &mode);
-    } while(mode != 1 && mode != 2);
-   
-    clrscr(); 
-   printf("%-15s %-45s %-6s %-6s\n","BRAND", "NAME", "PRICE", "STOCK");
-   printf("==========================================================================\n");
-   int limit = selectResList(fileName);
-   for (int i = 0; i < limit; i++){
-        printf("%d.",i+1);
-        previewList(listStore[i], listType[i]);
-    }
-    printf("\n========================================================================\n");
-    if (mode == 1){
-        printf("Select item for deletion: ");
-        scanf("%d", &cart);
-        deleteFromResList(fileName, cart-1, limit); 
-        userWindow();
-    }
-    else {
-        printf("Enter any key to return: ");
-        getch();
-        userWindow();
-    }
-    return 0;
-}
-
-void viewResList(){
-    int resList, mode;
-    char fileName[100] = "./PROJECT/FINAL/FILES/LISTS/RL/";
-    char Name[9];
-    strncpy(Name, log.username, 8);
-    Name[8] = '\0';
-    strcat(fileName, Name);
-    strcat(fileName, ".TXT");
-    clrscr();
-
-    do{
-    printf("1. Delete Mode\n");
-    printf("2. View Mode\n");
-    printf("Select mode: ");
-    scanf("%d", &mode);
-    } while(mode != 1 && mode != 2);
-
-    clrscr();
-    printf("%-15s %-45s %-6s %-6s\n","BRAND", "NAME", "PRICE", "STOCK");
-    printf("==========================================================================\n");
-    int limit = selectResList(fileName);
-    for(int i = 0; i < limit; i++){
-        printf("%d.", i+1);
-        previewList(listStore[i], listType[i]);
-    }
-    printf("\n========================================================================\n");
-    if (mode == 1){
-        printf("\nSelect item for deletion: ");    
-        scanf("%d", &resList);
-        deleteFromResList(fileName, resList-1, limit); 
-        userWindow();
-
-    } else {
-        printf("Enter any key to return: \n"); 
-        getch(); 
-        userWindow();
-    }
-}
-
-int viewPcBuilder(){
-    int pcBuilder, mode;
-    char fileName[100] = "./PROJECT/FINAL/FILES/LISTS/BR/";
-    char uName[9];
-    char YorN;
-    strncpy(uName, log.username, 8);
-    uName[8] = '\0';
-    strcat(fileName, uName);
-    strcat(fileName, ".TXT");
-
-    do{
-        printf("1. Delete Mode\n");
-        printf("2. Submission Mode\n");
-        printf("3. View Mode\n");
-        printf("Select Mode: ");
-        scanf("%d", &mode);
-    } while(mode > 3 && mode < 1);
-
-    clrscr();
-    printf("==========================================================================\n");
-    int limit = selectResList(fileName);
-    for(int i = 0; i < limit; i++){
-        printBuildList(listStore[i], listType[i]);
-    }
-    printf("\n========================================================================\n");
-    switch(mode){
-        case 1: 
-            printf("Enter Choice: ");
-            scanf("%d", &pcBuilder);
-            deleteFromBuildList(fileName, pcBuilder);
-            userWindow();
-            break;
-        
-        case 2:
-            do{
-                printf("Are you sure you would like to submit? [Y/N]: ");
-                scanf("\n%c", &YorN);
-            }while(YorN != 'Y' && YorN != 'N');
-            
-            if(YorN == 'Y') {
-                submitRequest(fileName, uName); 
-                userWindow(); 
-            }
-            else {
-                userWindow();
-            }
-            break;
-
-        case 3: 
-            printf("Press any key to return: ");
-            getch();
-            userWindow();
-            break;
-
-    }
-
-    return 0;
-}
-
-
-//INVENTORY NAVIGATION OPTIONS START HERE
-int iStorage(){
-    int storage;
-    clrscr();
-    
-    printf("%-15s %-45s %-6s %-6s\n","BRAND", "NAME", "PRICE", "STOCK");
-    printf("==============================================================================\n");
-    int limit = selectList("./PROJECT/FINAL/FILES/PARTS/STO/LIST.TXT");
-       for(int i = 0; i < limit; i++){
-            printf("%d. ", i+1);
-         previewList(listStore[i], 1);
-       }
-    printf("\n=============================================================================");
-    printf("\nEnter Choice: ");
-    scanf("%d", &storage);
-    if(admin(log.username)) adminViewItem(storage-1,1,limit); //Admin Command
-    else userViewItem(storage-1,1); //User Command
-    return 0;
-}
-
-int iCPU(){
-    int cpu;
-    clrscr();
-    printf("%-15s %-45s %-6s %-6s\n","BRAND", "NAME", "PRICE", "STOCK");
-    printf("==============================================================================\n");
-    int limit = selectList("./PROJECT/FINAL/FILES/PARTS/CPU/LIST.TXT");
-        for(int i = 0; i < limit; i++){
-            printf("%d. ", i+1);
-            previewList(listStore[i], 2);
-        }
-    printf("\n============================================================================");
-    printf("\nEnter Choice: ");
-    scanf("%d", &cpu);
-    if(admin(log.username)) adminViewItem(cpu-1,2,limit);
-    else userViewItem(cpu-1,2);
-      return 0;
-}
-
-int iGPU(){
-    int gpu;
-    clrscr();
-    printf("%-15s %-45s %-6s %-6s\n","BRAND", "NAME", "PRICE", "STOCK");
-    printf("==============================================================================\n");
-    int limit = selectList("./PROJECT/FINAL/FILES/PARTS/GPU/LIST.TXT");
-        for(int i = 0; i < limit; i++){
-            printf("%d. ", i+1);
-            previewList(listStore[i], 3);
-        }
-    printf("\n============================================================================");
-    printf("\nEnter Choice: ");
-    scanf("%d", &gpu);
-    if(admin(log.username)) adminViewItem(gpu-1,3,limit);
-    else userViewItem(gpu-1,3);
-      return 0;
-}
-
-int iMotherboard(){
-    int motherboard;
-    clrscr();
-    printf("%-15s %-45s %-6s %-6s\n","BRAND", "NAME", "PRICE", "STOCK");
-    printf("===============================================================================\n");
-    int limit = selectList("./PROJECT/FINAL/FILES/PARTS/MOBO/LIST.TXT");
-        for(int i = 0; i < limit; i++){
-            printf("%d. ", i+1);
-            previewList(listStore[i], 4);
-        }
-    printf("\n=============================================================================");
-    printf("\nEnter Choice: ");
-    scanf("%d", &motherboard);
-    if(admin(log.username)) adminViewItem(motherboard-1,4,limit);
-    else userViewItem(motherboard-1,4);
-      return 0;
-}
-
-int iRAM(){
-    int ram;
-    clrscr();
-    printf("%-15s %-45s %-6s %-6s\n","BRAND", "NAME", "PRICE", "STOCK");
-    printf("==============================================================================\n");
-    int limit = selectList("./PROJECT/FINAL/FILES/PARTS/RAM/LIST.TXT");
-        for(int i = 0; i < limit; i++){
-            printf("%d. ", i+1);
-            previewList(listStore[i], 5);
-        }
-    printf("\n============================================================================");
-    printf("\nEnter Choice: ");
-    scanf("%d", &ram);
-    if(admin(log.username)) adminViewItem(ram-1,5,limit);
-    else userViewItem(ram-1,5);
-      return 0;
-}
-
-int iFans(){
-    int fans;
-    clrscr();
-    printf("%-15s %-45s %-6s %-6s\n","BRAND", "NAME", "PRICE", "STOCK");
-    printf("==============================================================================\n");
-    int limit = selectList("./PROJECT/FINAL/FILES/PARTS/FANS/LIST.TXT");
-        for(int i = 0; i < limit; i++){
-            printf("%d. ", i+1);
-            previewList(listStore[i], 6);
-        }
-    printf("\n============================================================================");
-    printf("\nEnter Choice: ");
-    scanf("%d", &fans);
-    if(admin(log.username)) adminViewItem(fans-1,6,limit);
-    else userViewItem(fans-1,6);
-  return 0;
-}
-
-int iPSU(){
-    int psu;
-    clrscr();
-    printf("%-15s %-45s %-6s %-6s\n","BRAND", "NAME", "PRICE", "STOCK");
-    printf("==============================================================================\n");
-    int limit = selectList("./PROJECT/FINAL/FILES/PARTS/PSU/LIST.TXT");
-        for(int i = 0; i < limit; i++){
-            printf("%d. ", i+1);
-            previewList(listStore[i], 7);
-        }
-    printf("\n============================================================================");
-    printf("\nEnter Choice: ");
-    scanf("%d", &psu);
-    if(admin(log.username)) adminViewItem(psu-1,7,limit);
-    else userViewItem(psu-1,7);
-      return 0;
-}
-
-int iCooler(){
-    int cooler;
-    clrscr();
-    printf("%-15s %-45s %-6s %-6s\n","BRAND", "NAME", "PRICE", "STOCK");
-    printf("==============================================================================\n");
-    int limit = selectList("./PROJECT/FINAL/FILES/PARTS/COOL/LIST.TXT");
-        for(int i = 0; i < limit; i++){
-            printf("%d. ", i+1);
-            previewList(listStore[i], 8);
-        }
-    printf("\n============================================================================");
-    printf("\nEnter Choice: ");
-    scanf("%d", &cooler);
-    if(admin(log.username)) adminViewItem(cooler-1,8,limit);
-    else userViewItem(cooler-1,8);
-    return 0;
-}
-
-int viewInventory(){
-    int inventory;
-    clrscr();
-    printf("\n\t\t\t-----INVENTORY-----");
-    printf("\n1. Storage");
-    printf("\n2. CPU");
-    printf("\n3. GPU");
-    printf("\n4. Motherboard");
-    printf("\n5. RAM");
-    printf("\n6. Fans");
-    printf("\n7. PSU");
-    printf("\n8. Cooler");
-    printf("\n9. Return");
-
-    printf("\n===============");
-    printf("\nEnter Choice: ");
-    scanf("%d", &inventory);
-
-    switch (inventory){
-    case 1:
-        clrscr();
-        iStorage();
-        break;
-    case 2:
-        clrscr();
-        iCPU();
-        break;
-     case 3: 
-        clrscr();
-        iGPU();
-        break;
-     case 4:
-        clrscr();
-        iMotherboard();
-        break;
-    case 5: 
-        clrscr();
-        iRAM();
-        break;
-    case 6: 
-        clrscr();
-        iFans();
-        break;
-    case 7:
-        clrscr();
-        iPSU();
-        break;
-    case 8:
-        clrscr();
-        iCooler();
-        break;
-    case 9:
-        clrscr();
-        userWindow();
-    default:
-        printf("Choice Invalid");
-        break;
-    }
-    return 0;
-}
-
-//FUNCTIONS RELATED TO THE LOG-IN SEQUENCE START HERE.
-//ADMIN CHECK FUNCTION
+//This function checks whether a user is an admin or not.
 int admin(char* username){
     return strncmp(username, "admin_", 6) == 0;
 }
 
-//SAVES USER
+//This function saves a user to the system once they are registered.
 int savingUser(struct user log){
     char fileName[105] = "./PROJECT/FINAL/FILES/USERS/";
     char cartLoc[105] = "./PROJECT/FINAL/FILES/LISTS/CART/";
@@ -1805,7 +1998,7 @@ int savingUser(struct user log){
     return 0;
 }
 
-//GENERATES USERNAME FROM EMAIL
+//This function generates a username from a user's email upon registration by taking text before the "@" character. 
 int generateUser(char email[50], char userName[50]){
     int i;
     for(i = 0; i < strlen(email); i++) {
@@ -1816,61 +2009,66 @@ int generateUser(char email[50], char userName[50]){
     return 0;
 }
 
-void regUser(){
-    FILE *fptr;
-
-    printf("\nEnter Fullname: ");
-    gets(log.fullname);
-
-    printf("Enter Email: ");
-    gets(log.email);
-
-    printf("Enter Contact Number: ");
-    gets(log.phoneNum);
-
-    printf("Enter Password: ");
-    gets(log.password);
-
-    generateUser(log.email, log.username);
-    fptr = fopen("./PROJECT/FINAL/FILES/USERS/LIST.TXT", "a");
-    fprintf(fptr, "%s,", log.username);
-    fclose(fptr);
-    printf("\nGenerated Username: %s\n", log.username);
-
-    if (savingUser(log) == 0) {
-        printf("User saved successfully!\n");
-    } else {
-        printf("Error saving user.\n");
-    }
-}
-
-int manageUsers(){
+//Allows the user or admin to log-in to their account.
+int logIn(){
+    char userInput[100], password[100], fileName[105] = "./PROJECT/FINAL/FILES/USERS/";
+    char line[300];
+    int flag = 0;
     clrscr();
-    int adminpref;
-    printf("\n\t\t\t\t-----MANAGE USERS-----");
-    printf("\n1. Register a User");
-    printf("\n2. Remove a User");
-    printf("\n3. Go Back");
+    printf("\n\t\t\t\t-----LOGIN-----");
+    printf("\nEnter Username: ");
+    gets(userInput);
+    printf("Enter Password: ");
+    gets(password);
 
-    printf("\nEnter Choice: ");
-    scanf("%d", &adminpref);
-    while (getchar() != '\n');
+    strcat(fileName, userInput);
+    strcat(fileName, ".txt");
 
-    switch(adminpref){
-        case 1: 
-        regUser();
-        adminWindow();
-        break;
-        case 2:
-        removeUser();
-        adminWindow();
-        break;
-        case 3:
-        adminWindow();
-
+    FILE *fptr = fopen(fileName, "r");
+    if(fptr == NULL){
+    printf("No User Found.");
     }
+    
+    while(fscanf(fptr, "%[^,],%[^,],%[^,],%[^,],%s", log.fullname, log.email, log.username, log.phoneNum, log.password) == 5){
+    if (strcmp(log.username, userInput) == 0 && strcmp(log.password, password) == 0 ){
+        flag = 1;
+        break;
+        }
+    }
+    fclose(fptr);
+
+    if(flag == 1){
+        if(admin(log.username))
+             { adminWindow(); }
+        else { 
+            restockNotify();
+            builtNotify();
+            userWindow(); 
+        }
+        }
+        else {
+            printf("\nINVALID USERNAME OR PASSWORD!");
+        }
+    return 0;
+   }
+
+
+//A function that only starts once when the program is first intialized. Allows the admin to make their account.
+void firstBootReg(){
+   FILE *fptr;
+   fptr = fopen("./PROJECT/FINAL/FILES/USERS/LIST.TXT", "r");
+   if (fptr == NULL){
+    fptr = fopen("./PROJECT/FINAL/FILES/USERS/LIST.TXT", "w");
+    fclose(fptr);
+    regUser();
+   } fclose(fptr);
 }
 
+//FUNCTIONS RELATED TO THE LOG-IN SEQUENCE END HERE.
+
+//FUNCTIONS RELATED TO USER OR ADMIN WINDOWS START HERE.
+
+//Responsible for displaying the user window.
 void userWindow(){
     int userpref = 0;
     char uname[9];
@@ -1937,6 +2135,7 @@ void userWindow(){
     }
 }
 
+//Responsible for displaying the admin window.
 void adminWindow(){
     clrscr();
     int adminUI = 0;
@@ -1973,88 +2172,4 @@ void adminWindow(){
                 printf("Invalid Choice");
                 break;
             }
-}
-//LOG-IN FUNCTION
-//Allows the user to log-in to their account.
-int logIn(){
-    char userInput[100], password[100], fileName[105] = "./PROJECT/FINAL/FILES/USERS/";
-    char line[300];
-    int flag = 0;
-    clrscr();
-    printf("\n\t\t\t\t-----LOGIN-----");
-    printf("\nEnter Username: ");
-    gets(userInput);
-    printf("Enter Password: ");
-    gets(password);
-
-    strcat(fileName, userInput);
-    strcat(fileName, ".txt");
-
-    FILE *fptr = fopen(fileName, "r");
-    if(fptr == NULL){
-    printf("No User Found.");
-    }
-    
-    while(fscanf(fptr, "%[^,],%[^,],%[^,],%[^,],%s", log.fullname, log.email, log.username, log.phoneNum, log.password) == 5){
-    if (strcmp(log.username, userInput) == 0 && strcmp(log.password, password) == 0 ){
-        flag = 1;
-        break;
-        }
-    }
-    fclose(fptr);
-
-    if(flag == 1){
-        if(admin(log.username))
-             { adminWindow(); }
-        else { 
-            restockNotify();
-            builtNotify();
-            userWindow(); 
-        }
-        }
-        else {
-            printf("\nINVALID USERNAME OR PASSWORD!");
-        }
-    return 0;
-   }
-
-//FIRST-BOOT FUNCTION
-void firstBootReg(){
-   FILE *fptr;
-   fptr = fopen("./PROJECT/FINAL/FILES/USERS/LIST.TXT", "r");
-   if (fptr == NULL){
-    fptr = fopen("./PROJECT/FINAL/FILES/USERS/LIST.TXT", "w");
-    fclose(fptr);
-    regUser();
-   } fclose(fptr);
-}
-
-//MAIN FUNCTION
-int main(){
-    int choice;
-    firstBootReg();
-
-    while(1){
-    clrscr();
-    printf("\n\t\t\t\t-----BUILD IT-----");
-    printf("\n1. Login");
-    printf("\n2. Exit");
-    printf("\nEnter Choice: ");
-    scanf("%d", &choice);
-    while (getchar() != '\n');
-
-    switch (choice){
-        case 1: 
-        logIn();
-        break;
-        case 2:
-        printf("\nGoodbyee...");
-        return 0;
-        break;
-        default:
-        printf("Invalid Choice");
-        break;
-    }
-}
-return 0;
 }
