@@ -1,0 +1,5 @@
+RECEIPT NO: 6
+BUYER: Rion Bustos
+NAME       | PRICE 
+RYZEN575   | 90    
+TOTAL PRICE: 90

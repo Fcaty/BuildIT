@@ -1,0 +1,7 @@
+RECEIPT NO: 12
+BUYER: Rion Bustos
+NAME       | PRICE 
+i39100f    | 10    
+RYZEN575   | 90    
+B650GAMI   | 11000 
+TOTAL PRICE: 11100

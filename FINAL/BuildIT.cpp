@@ -43,8 +43,8 @@ struct user {
 //Global Variables (Used for selection, editing, and deleting.)
 char listStore[999][10]; //Stores the selected LIST.TXT file.
 int listType[999]; //Stores the types of a selected LIST.TXT file. Commonly utilized by ReserveLists.
-char PCBuildName[8][10];
-char PCBuildType[8];
+char PCBuildName[8][10]; //Stores parts of the PC Build List.
+char PCBuildType[8]; //Stores parts of the PC Build List Type, the 2nd number located in the .TXT file.
 struct Part read; //Stores a selected PARTS.TXT file.
 
 struct PCBuild {
@@ -66,7 +66,7 @@ int selectList(char fileName[100]); //Selects a given LIST.TXT file containing s
 int selectResList(char fileName[100]); //Selects a given LIST.TXT file containing strings and decimals, preparing it for viewing, deleting, or editing.
 void clearList(char fileName[100]);//Clears the array responsible for holding data from a LIST.TXT file. Always perform after using previewList();
 void deleteFromList(char listLoc[100], int selected, int limit); //Will delete an entry from a list .TXT file.
-void deleteFromResList(char listLoc[100], int selected, int limit); //Will delete an entry from a list .TXT file containing strings and decimals.
+int deleteFromResList(char listLoc[100], int selected, int limit); //Will delete an entry from a list .TXT file containing strings and decimals.
 void deleteFromBuildList(char listLoc[100], int selected); //Will delete an entry from a users PC Build List.
 void deleteFile(char name[10], int index, int limit, int type); //Will delete a selected file.
 void updateInfo(char name[10], int type); //Will update the info of a selected file.
@@ -121,6 +121,9 @@ int iRAM(); //RAM display list function.
 int iFans(); //Fans display list function.
 int iPSU(); //PSU display list function.
 int iCooler(); //Cooling display list function.
+void checkoutPopup(int receiptNo); //Output sequence for checkout();
+void restockPopup(); //Output sequence for restockNotify();
+void builtPopup(int receiptNo); //Output sequence for builtNotify();
 
 //FUNCTIONS RELATED TO NOTIFICATIONS START HERE
 
@@ -147,11 +150,21 @@ int main(){
 
     while(1){
     clrscr();
-    printf("\n\t\t\t\t-----BUILD IT-----");
-    printf("\n1. Login");
-    printf("\n2. Exit");
-    printf("\nEnter Choice: ");
-    scanf("%d", &choice);
+    printf("===============================================================================\n");
+    printf("|     db   d8b   db d88888b db       .o88b.  .d88b.  .88b  d88. d88888b db    |\n");
+    printf("|     88   I8I   88 88'     88      d8P  Y8 .8P  Y8. 88'YbdP`88 88'     88    |\n");
+    printf("|     88   I8I   88 88ooooo 88      8P      88    88 88  88  88 88ooooo YP    |\n");
+    printf("|     Y8   I8I   88 88~~~~~ 88      8b      88    88 88  88  88 88~~~~~       |\n");
+    printf("|     `8b d8'8b d8' 88.     88booo. Y8b  d8 `8b  d8' 88  88  88 88.     db    |\n");
+    printf("|      `8b8' `8d8'  Y88888P Y88888P  `Y88P'  `Y88P'  YP  YP  YP Y88888P YP    |\n");
+    printf("===============================================================================\n");
+    printf("|  1. Login                                                                   |\n");
+    printf("|  2. Exit                                                                    |\n");
+    printf("===============================================================================\n");
+    do{
+        printf("| Enter Choice: ");
+        scanf("%d", &choice);
+    }while(choice != 1 && choice != 2);
     while (getchar() != '\n');
 
     switch (choice){
@@ -241,7 +254,7 @@ void deleteFromList(char listLoc[100], int selected, int limit){
 }
 
 //Will delete an entry from a list .TXT file containing strings and decimals.
-void deleteFromResList(char listLoc[100], int selected, int limit){
+int deleteFromResList(char listLoc[100], int selected, int limit){
     FILE *fptr;
 
     for(int i = selected; i < limit; i++){
@@ -255,6 +268,8 @@ void deleteFromResList(char listLoc[100], int selected, int limit){
     for(int j = 0; j < limit; j++){
         fprintf(fptr,"%s,%d,",listStore[j],listType[j]);
     } fclose(fptr);
+
+    return limit;
 }
 
 //Will delete an entry from a users PC Build List.
@@ -484,9 +499,13 @@ void readFile(char name[10], int type){
 //This function updates the stock value of anything that is checked out, returning the price of the item.
 int receiptEntry(char name[10], int type){
     readFile(name, type);
+    if(read.stock == 0){
+        return -1;
+    } else {
     --read.stock;
     updateInfo(name, type);
     return read.price;
+    }
 }
 
 //FUNCTIONS FOR FILE-HANDLING END HERE
@@ -497,14 +516,16 @@ int receiptEntry(char name[10], int type){
 void editFile(char name[10], int type){
     int choice = 0;
     readFile(name, type);
-
-    printf("\n\t\t\t-----EDIT ENTRY-----\n");
-    printf("Which would you like to update?\n");
-    printf("1. Price\n");
-    printf("2. Stock\n");
-    printf("3. Both\n");
-    printf("Choice: ");
-    scanf("%d", &choice);
+    printf("===============================================================================\n");
+    printf("| Which would you like to edit?\n");
+    printf("| 1. Price\n");
+    printf("| 2. Stock\n");
+    printf("| 3. Both\n");
+    printf("| 4. Cancel\n");
+    do{
+        printf("Choice: ");
+        scanf("%d", &choice);
+    }while(!(choice >= 1 && choice <= 4));
 
     switch(choice){
         case 1:
@@ -526,6 +547,7 @@ void editFile(char name[10], int type){
         break;
         default:
         printf("Invalid Input!");
+        break;
     }
 }
 
@@ -533,287 +555,399 @@ void editFile(char name[10], int type){
 void createStorage(){
     FILE *fptr;
     char fileName[105] = "./PROJECT/FINAL/FILES/PARTS/STO/";
-    printf("=======================STORAGE===================\n");
+    char YorN;
+    clrscr();
+    printf("===============================================================================\n");
+    printf("|          .d8888. d888888b  .d88b.  d8888b.  .d8b.   d888b  d88888b          |\n");
+    printf("|          88'  YP `~~88~~' .8P  Y8. 88  `8D d8' `8b 88' Y8b 88'              |\n");
+    printf("|          `8bo.      88    88    88 88oobY' 88ooo88 88      88ooooo          |\n");
+    printf("|            `Y8b.    88    88    88 88`8b   88~~~88 88  ooo 88~~~~~          |\n");
+    printf("|          db   8D    88    `8b  d8' 88 `88. 88   88 88. ~8~ 88.              |\n");
+    printf("|          `8888Y'    YP     `Y88P'  88   YD YP   YP  Y888P  Y88888P          |\n");
+    printf("===============================================================================\n");
     struct Part createStorage;
     while (getchar() != '\n');
-    printf("Enter brand: ");
+    printf("| Enter brand: ");
     gets(createStorage.brand);
-    printf("Enter type of storage: ");
+    printf("| Enter type of storage: ");
     gets(createStorage.storage.type);
-    printf("Enter storage amount (in GB): ");
+    printf("| Enter storage amount (in GB): ");
     scanf("%d", &createStorage.storage.amount);
     while (getchar() != '\n');
-    printf("Enter name of product: ");
+    printf("| Enter name of product: ");
     gets(createStorage.name);
-    printf("Enter price of product: ");
+    printf("| Enter price of product: ");
     scanf("%d", &createStorage.price);
-    printf("Enter current stock: ");
+    printf("| Enter current stock: ");
     scanf("%d", &createStorage.stock);
     while (getchar() != '\n');
-    printf("===========================================\n");
-    addList("./PROJECT/FINAL/FILES/PARTS/STO/LIST.TXT",createStorage.name);
+    printf("===============================================================================\n");
+    do {
+        printf("| Create new item? [Y/N]: ");
+        scanf("\n%c", &YorN);
+    }while(YorN != 'Y' && YorN != 'N');
+    if(YorN == 'Y'){
 
+    addList("./PROJECT/FINAL/FILES/PARTS/STO/LIST.TXT",createStorage.name);
     strcat(fileName, createStorage.name);
     strcat(fileName, ".txt");
     fptr = fopen(fileName, "w");
-    
     fprintf(fptr,"%s,%s,%d,%d,%d,%s,", createStorage.brand, createStorage.name, createStorage.price, createStorage.stock, 
              createStorage.storage.amount, createStorage.storage.type);
-
     fclose(fptr);
+    } else {
+        printf("| Entry cancelled. ");
+        getch();
+    }
 }
 
 //Creates new CPU entries. (Case 2)
 void createCPU(){
     FILE *fptr;
     char fileName[105] = "./PROJECT/FINAL/FILES/PARTS/CPU/";
-    
-    printf("======================CPU==================\n");
+    char YorN;
+    clrscr();
+    printf("===============================================================================\n");
+    printf("|                           .o88b. d8888b. db    db                           |\n");
+    printf("|                          d8P  Y8 88  `8D 88    88                           |\n");
+    printf("|                          8P      88oodD' 88    88                           |\n");
+    printf("|                          8b      88~~~   88    88                           |\n");
+    printf("|                          Y8b  d8 88      88b  d88                           |\n");
+    printf("|                           `Y88P' 88      ~Y8888P'                           |\n");
+    printf("===============================================================================\n");
     struct Part createCPU;
     while (getchar() != '\n');
-    printf("Enter brand: ");
+    printf("| Enter brand: ");
     gets(createCPU.brand);
-    printf("Enter clock speed (in MHz): ");
+    printf("| Enter clock speed (in MHz): ");
     scanf("%d", &createCPU.cpu.MHz);
     while (getchar() != '\n');
-    printf("Enter name of product: ");
+    printf("| Enter name of product: ");
     gets(createCPU.name);
-    printf("Enter price of product: ");
+    printf("| Enter price of product: ");
     scanf("%d", &createCPU.price);
-    printf("Enter current stock: ");
+    printf("| Enter current stock: ");
     scanf("%d", &createCPU.stock);
     while (getchar() != '\n');
-    printf("===========================================\n");
-
+    printf("===============================================================================\n");
+    do {
+        printf("| Create new item? [Y/N]: ");
+        scanf("\n%c", &YorN);
+    }while(YorN != 'Y' && YorN != 'N');
+    if(YorN == 'Y'){
     addList("./PROJECT/FINAL/FILES/PARTS/CPU/LIST.TXT",createCPU.name);
-
     strcat(fileName, createCPU.name);
     strcat(fileName, ".txt");
     fptr = fopen(fileName, "w");
-
     fprintf(fptr, "%s,%s,%d,%d,%d", createCPU.brand,  createCPU.name, createCPU.price, createCPU.stock, 
             createCPU.cpu.MHz);
-    
     fclose(fptr);
+    } else {
+        printf("| Entry cancelled. ");
+        getch();
+    }
 }
 
 //Creates new GPU entries. (Case 3)
 void createGPU(){
     FILE *fptr;
     char fileName[105] = "./PROJECT/FINAL/FILES/PARTS/GPU/";
-
-    printf("=====================GPU===================\n");
+    char YorN;
+    clrscr();
+    printf("===============================================================================\n");
+    printf("|                          d888b  d8888b. db    db                            |\n");
+    printf("|                         88' Y8b 88  `8D 88    88                            |\n");
+    printf("|                         88      88oodD' 88    88                            |\n");
+    printf("|                         88  ooo 88~~~   88    88                            |\n");
+    printf("|                         88. ~8~ 88      88b  d88                            |\n");
+    printf("|                          Y888P  88      ~Y8888P'                            |\n");
+    printf("===============================================================================\n");
     struct Part createGPU;
     while (getchar() != '\n');
-    printf("Enter brand: ");
+    printf("| Enter brand: ");
     gets(createGPU.brand);
-    printf("Enter VRAM (in GB): ");
+    printf("| Enter VRAM (in GB): ");
     scanf("%d", &createGPU.gpu.VRAM);
     while (getchar() != '\n');
-    printf("Enter name of product: ");
+    printf("| Enter name of product: ");
     gets(createGPU.name);
-    printf("Enter price of product: ");
+    printf("| Enter price of product: ");
     scanf("%d", &createGPU.price);
-    printf("Enter current stock: ");
+    printf("| Enter current stock: ");
     scanf("%d", &createGPU.stock);
     while (getchar() != '\n');
-    printf("===========================================\n");
-
+    printf("===============================================================================\n");
+    do {
+        printf("| Create new item? [Y/N]: ");
+        scanf("\n%c", &YorN);
+    }while(YorN != 'Y' && YorN != 'N');
+    if(YorN == 'Y'){
     addList("./PROJECT/FINAL/FILES/PARTS/GPU/LIST.TXT",createGPU.name);
-
     strcat(fileName, createGPU.name);
     strcat(fileName, ".txt");
     fptr = fopen(fileName, "w");
-
     fprintf(fptr, "%s,%s,%d,%d,%d", createGPU.brand, createGPU.name, createGPU.price, createGPU.stock, 
             createGPU.gpu.VRAM);
-
     fclose(fptr);
+    } else {
+        printf("| Entry cancelled. ");
+        getch();
+    }
 }
 
 //Creates new motherboard entries (Case 4)
 void createMobo(){
     FILE *fptr;
     char fileName[105] = "./PROJECT/FINAL/FILES/PARTS/MOBO/";
-    
-    printf("===================MOTHERBOARD================\n");
+    char YorN;
+    clrscr();
+    printf("===============================================================================\n");
+    printf("|                     .88b  d88.  .d88b.  d8888b.  .d88b.                     |\n");
+    printf("|                     88'YbdP`88 .8P  Y8. 88  `8D .8P  Y8.                    |\n");
+    printf("|                     88  88  88 88    88 88oooY' 88    88                    |\n");
+    printf("|                     88  88  88 88    88 88~~~b. 88    88                    |\n");
+    printf("|                     88  88  88 `8b  d8' 88   8D `8b  d8'                    |\n");
+    printf("|                     YP  YP  YP  `Y88P'  Y8888P'  `Y88P'                     |\n");
+    printf("===============================================================================\n");
     struct Part createMobo;
     while (getchar() != '\n');
-    printf("Enter brand: ");
+    printf("| Enter brand: ");
     gets(createMobo.brand);
-    printf("Enter name of product: ");
+    printf("| Enter name of product: ");
     gets(createMobo.name);
-    printf("Enter price of product: ");
+    printf("| Enter price of product: ");
     scanf("%d", &createMobo.price);
-    printf("Enter current stock: ");
+    printf("| Enter current stock: ");
     scanf("%d", &createMobo.stock);
     while (getchar() != '\n');
-    printf("===========================================\n");
-
+    printf("===============================================================================\n");
+    do {
+        printf("| Create new item? [Y/N]: ");
+        scanf("\n%c", &YorN);
+    }while(YorN != 'Y' && YorN != 'N');
+    if(YorN == 'Y'){
     addList("./PROJECT/FINAL/FILES/PARTS/MOBO/LIST.TXT",createMobo.name);
-
     strcat(fileName, createMobo.name);
     strcat(fileName, ".txt");
     fptr = fopen(fileName, "w");
-
     fprintf(fptr, "%s,%s,%d,%d", createMobo.brand, createMobo.name, createMobo.price, createMobo.stock);
-
     fclose(fptr);
+    } else {
+        printf("| Entry cancelled. ");
+        getch();
+    }
 }
 
 //Creates new RAM Entries. (Case 5)
 void createRAM(){
     FILE *fptr;
     char fileName[105] = "./PROJECT/FINAL/FILES/PARTS/RAM/";
-    printf("=========================RAM===============\n");
+    char YorN;
+    clrscr();
+    printf("===============================================================================\n");
+    printf("|                         d8888b.  .d8b.  .88b  d88.                          |\n");
+    printf("|                         88  `8D d8' `8b 88'YbdP`88'                         |\n");
+    printf("|                         88oobY' 88ooo88 88  88  88                          |\n");
+    printf("|                         88`8b   88~~~88 88  88  88                          |\n");
+    printf("|                         88 `88. 88   88 88  88  88                          |\n");
+    printf("|                         88   YD YP   YP YP  YP  YP                          |\n");
+    printf("===============================================================================\n");
     struct Part createRAM;
     while (getchar() != '\n');
-    printf("Enter brand: ");
+    printf("| Enter brand: ");
     gets(createRAM.brand);
-    printf("Enter name of product: ");
+    printf("| Enter name of product: ");
     gets(createRAM.name);
-    printf("Enter RAM speed (in Mhz): ");
+    printf("| Enter RAM speed (in Mhz): ");
     scanf("%d", &createRAM.ram.MHz);
-    printf("Enter RAM amount (in GB): ");
+    printf("| Enter RAM amount (in GB): ");
     scanf("%d", &createRAM.ram.amount);
-    printf("Enter price of product: ");
+    printf("| Enter price of product: ");
     scanf("%d", &createRAM.price);
-    printf("Enter current stock: ");
+    printf("| Enter current stock: ");
     scanf("%d", &createRAM.stock);
     while (getchar() != '\n');
-    printf("===========================================\n");
-
+    printf("===============================================================================\n");
+    do {
+        printf("| Create new item? [Y/N]: ");
+        scanf("\n%c", &YorN);
+    }while(YorN != 'Y' && YorN != 'N');
+    
+    if(YorN == 'Y'){
     addList("./PROJECT/FINAL/FILES/PARTS/RAM/LIST.TXT",createRAM.name);
-
     strcat(fileName, createRAM.name);
     strcat(fileName, ".txt");
     fptr = fopen(fileName, "w");
-
     fprintf(fptr, "%s,%s,%d,%d,%d,%d", createRAM.brand, createRAM.name, createRAM.price, createRAM.stock, 
         createRAM.ram.MHz, createRAM.ram.amount);
-
     fclose(fptr);
+    } else {
+        printf("| Entry cancelled. ");
+        getch();
+    }
 }
 
 //Creates new Fan Entries. (Case 6)
 void createFans(){
     FILE *fptr;
     char fileName[105] = "./PROJECT/FINAL/FILES/PARTS/FANS/";
-
-    printf("========================FANS===============\n");
+    char YorN;
+    clrscr();
+    printf("===============================================================================\n");
+    printf("|                      d88888b  .d8b.  d8b   db .d8888.                       |\n");
+    printf("|                      88'     d8' `8b 888o  88 88'  YP                       |\n");
+    printf("|                      88ooo   88ooo88 88V8o 88 `8bo.                         |\n");
+    printf("|                      88~~~   88~~~88 88 V8o88   `Y8b.                       |\n");
+    printf("|                      88      88   88 88  V888 db   8D                       |\n");
+    printf("|                      YP      YP   YP VP   V8P `8888Y'                       |\n");
+    printf("===============================================================================\n");
     struct Part createFans;
     while (getchar() != '\n');
-    printf("Enter brand: ");
+    printf("| Enter brand: ");
     gets(createFans.brand);
-    printf("Enter amount of fans per pack: ");
+    printf("| Enter amount of fans per pack: ");
     scanf("%d", &createFans.fans.amount);
     while (getchar() != '\n');
-    printf("Enter name of product: ");
+    printf("| Enter name of product: ");
     gets(createFans.name);
-    printf("Enter price of product: ");
+    printf("| Enter price of product: ");
     scanf("%d", &createFans.price);
-    printf("Enter amount of stock: ");
+    printf("| Enter amount of stock: ");
     scanf("%d", &createFans.stock);
     while (getchar() != '\n');
-    printf("===========================================\n");
-
+    printf("===============================================================================\n");
+    do {
+        printf("| Create new item? [Y/N]: ");
+        scanf("\n%c", &YorN);
+    }while(YorN != 'Y' && YorN != 'N');
+    
+    if(YorN == 'Y'){
     addList("./PROJECT/FINAL/FILES/PARTS/FANS/LIST.TXT",createFans.name);
-
     strcat(fileName, createFans.name);
     strcat(fileName, ".txt");
     fptr = fopen(fileName, "w");
-
     fprintf(fptr, "%s,%s,%d,%d,%d", createFans.brand, createFans.name, createFans.price, createFans.stock, 
             createFans.fans.amount);
-
     fclose(fptr);
-
+    } else {
+        printf("| Entry cancelled. ");
+        getch();
+    }
 }
 
 //Creates new PSU entries (Case 7)
 void createPSU(){
     FILE *fptr;
     char fileName[105] = "./PROJECT/FINAL/FILES/PARTS/PSU/";
-
-    printf("======================PSU==================\n");
+    char YorN;
+    clrscr();
+    printf("===============================================================================\n");
+    printf("|                          d8888b. .d8888. db    db                           |\n");
+    printf("|                          88  `8D 88'  YP 88    88                           |\n");
+    printf("|                          88oodD' `8bo.   88    88                           |\n");
+    printf("|                          88~~~     `Y8b. 88    88                           |\n");
+    printf("|                          88      db   8D 88b  d88                           |\n");
+    printf("|                          88      `8888Y' ~Y8888P'                           |\n");
+    printf("===============================================================================\n");
     struct Part createPSU;
     while (getchar() != '\n');
-    printf("Enter brand: ");
+    printf("| Enter brand: ");
     gets(createPSU.brand);
-    printf("Enter capacity of PSU (in W): ");
+    printf("| Enter capacity of PSU (in W): ");
     scanf("%d", &createPSU.psu.wattage);
     while (getchar() != '\n');
-    printf("Enter name of product: ");
+    printf("| Enter name of product: ");
     gets(createPSU.name);
-    printf("Enter price of product: ");
+    printf("| Enter price of product: ");
     scanf("%d", &createPSU.price);
-    printf("Enter amount of stock: ");
+    printf("| Enter amount of stock: ");
     scanf("%d", &createPSU.stock);
     while (getchar() != '\n');
-    printf("===========================================\n");
-
+    printf("===============================================================================\n");
+    do {
+        printf("| Create new item? [Y/N]: ");
+        scanf("\n%c", &YorN);
+    }while(YorN != 'Y' && YorN != 'N');
+    if(YorN == 'Y'){    
     addList("./PROJECT/FINAL/FILES/PARTS/PSU/LIST.TXT",createPSU.name);
-
     strcat(fileName, createPSU.name);
     strcat(fileName, ".txt");
     fptr = fopen(fileName, "w");
-
     fprintf(fptr, "%s,%s,%d,%d,%d", createPSU.brand,  createPSU.name, createPSU.price, createPSU.stock, 
             createPSU.psu.wattage);
-
     fclose(fptr);
+    } else {
+        printf("| Entry cancelled. ");
+        getch();
+    }
 }
 
 //Creates new Cooler Entries (Case 8)
 void createCooler(){
     FILE *fptr;
     char fileName[105] = "./PROJECT/FINAL/FILES/PARTS/COOL/";
-
-    printf("=======================COOLER================\n");
+    char YorN;
+    clrscr();
+    printf("===============================================================================\n");
+    printf("|              .o88b.  .d88b.   .d88b.  db      d88888b d8888b.               |\n");
+    printf("|             d8P  Y8 .8P  Y8. .8P  Y8. 88      88'     88  `8D               |\n");
+    printf("|             8P      88    88 88    88 88      88ooooo 88oobY'               |\n");
+    printf("|             8b      88    88 88    88 88      88~~~~~ 88`8b                 |\n");
+    printf("|             Y8b  d8 `8b  d8' `8b  d8' 88booo. 88.     88 `88.               |\n");
+    printf("|              `Y88P'  `Y88P'   `Y88P'  Y88888P Y88888P 88   YD               |\n");
+    printf("===============================================================================\n");
     struct Part createCooler;
     while (getchar() != '\n');
-    printf("Enter brand: ");
+    printf("| Enter brand: ");
     gets(createCooler.brand);
-    printf("Enter the type of cooler: ");
+    printf("| Enter the type of cooler: ");
     gets(createCooler.cooler.type);
-    printf("Enter name of product: ");
+    printf("| Enter name of product: ");
     gets(createCooler.name);
-    printf("Enter price of product: ");
+    printf("| Enter price of product: ");
     scanf("%d", &createCooler.price);
-    printf("Enter amount of stock: ");
+    printf("| Enter amount of stock: ");
     scanf("%d", &createCooler.stock);
     while (getchar() != '\n');
-    printf("===========================================\n");
+    printf("===============================================================================\n");
 
+    if(YorN == 'Y'){
     addList("./PROJECT/FINAL/FILES/PARTS/COOL/LIST.TXT",createCooler.name);
-
     strcat(fileName, createCooler.name);
     strcat(fileName, ".txt");
     fptr = fopen(fileName, "w");
-
     fprintf(fptr, "%s,%s,%d,%d,%s", createCooler.brand, createCooler.name, createCooler.price, createCooler.stock, 
         createCooler.cooler.type);
-    
     fclose(fptr);
+    } else {
+        printf("| Entry cancelled. ");
+        getch();
+    }
 }
 
 //This function displays a menu that allows the user to choose which item they create.
 void editInventory(){
     int inventory;
     clrscr();
-    printf("\n\t\t\t-----EDIT INVENTORY-----");
-    printf("\n1. Add Storage Entry");
-    printf("\n2. Add CPU Entry");
-    printf("\n3. Add GPU Entry");
-    printf("\n4. Add Motherboard Entry");
-    printf("\n5. Add RAM Entry");
-    printf("\n6. Add Fans Entry");
-    printf("\n7. Add PSU Entry");
-    printf("\n8. Add Cooler Entry");
-    printf("\n9. Go Back");
-
-    printf("\n===============");
-    printf("\nEnter Choice: ");
+    printf("===============================================================================\n");
+    printf("|               .d8b.  d8888b. d8888b. d888888b d8b   db  d888b               |\n");
+    printf("|              d8' `8b 88  `8D 88  `8D   `88'   888o  88 88' Y8b              |\n");
+    printf("|              88ooo88 88   88 88   88    88    88V8o 88 88                   |\n");
+    printf("|              88~~~88 88   88 88   88    88    88 V8o88 88  ooo              |\n");
+    printf("|              88   88 88  .8D 88  .8D   .88.   88  V888 88. ~8~              |\n");
+    printf("|              YP   YP Y8888D' Y8888D' Y888888P VP   V8P  Y888P               |\n");
+    printf("===============================================================================\n");
+    printf("| 1. Storage                                                                  |\n");
+    printf("| 2. CPU                                                                      |\n");
+    printf("| 3. GPU                                                                      |\n");
+    printf("| 4. Motherboard                                                              |\n");
+    printf("| 5. RAM                                                                      |\n");
+    printf("| 6. Fans                                                                     |\n");
+    printf("| 7. PSU                                                                      |\n");
+    printf("| 8. Cooler                                                                   |\n");
+    printf("| 9. Return                                                                   |\n");
+    printf("===============================================================================\n");
+    printf("| Enter Choice: ");
     scanf("%d", &inventory);
     switch (inventory){
     case 1:
@@ -873,15 +1007,30 @@ void viewReserve(char name[10]){
     char output[50];
     int count = 0;
     char fileName[100] = "./PROJECT/FINAL/FILES/LISTS/RH/";
+    clrscr();
     strcat(fileName, name);
     strcat(fileName, ".TXT");
-
+    printf("===============================================================================\n");
+    printf("|          db   db d888888b .d8888. d888888b  .d88b.  d8888b. db    db        |\n");
+    printf("|          88   88   `88'   88'  YP `~~88~~' .8P  Y8. 88  `8D `8b  d8'        |\n");
+    printf("|          88ooo88    88    `8bo.      88    88    88 88oobY'  `8bd8'         |\n");
+    printf("|          88~~~88    88      `Y8b.    88    88    88 88`8b      88           |\n");
+    printf("|          88   88   .88.   db   8D    88    `8b  d8' 88 `88.    88           |\n");
+    printf("|          YP   YP Y888888P `8888Y'    YP     `Y88P'  88   YD    YP           |\n");
+    printf("===============================================================================\n");
     fptr = fopen(fileName, "r");
+    if (fptr == NULL){
+        printf("| No one has reserved this item!");
+        getch();
+    } else {
     while(fscanf(fptr, "%[^,],", output) == 1 ){
         ++count;
-        printf("%d. %s\n", count, output);
+        printf("| %d. %-72s |\n", count, output);
+    } fclose(fptr);
+    printf("===============================================================================\n");
+    printf("| Press any key to exit.");
+    getch();
     }
-
 }
 
 //Given a receipt #, this function allows the user to print out of any receipt, as long as it exists.
@@ -910,17 +1059,25 @@ void viewReceipts(){
 //Displays the item view menu for admins.
 void adminViewItem(int index, int type, int limit){
     int choice = 0;
+    char YorN;
     clrscr();
-    printf("==============================================================================\n");
+    printf("===============================================================================\n");
+    printf("|         d8888b. d88888b d888888b  .d8b.  d888888b db      .d8888.           |\n");
+    printf("|         88  `8D 88'     `~~88~~' d8' `8b   `88'   88      88'  YP           |\n");
+    printf("|         88   88 88ooooo    88    88ooo88    88    88      `8bo.             |\n");
+    printf("|         88   88 88~~~~~    88    88~~~88    88    88        `Y8b.           |\n");
+    printf("|         88  .8D 88.        88    88   88   .88.   88booo. db   8D           |\n");
+    printf("|         Y8888D' Y88888P    YP    YP   YP Y888888P Y88888P `8888Y'           |\n");
+    printf("===============================================================================\n");
     displayItem(listStore[index], type);
-    printf("\n============================================================================\n");
-    printf("1. View Reservations\n");
-    printf("2. Edit Item\n");
-    printf("3. Delete Item\n");
-    printf("4. Return");
-    printf("\nEnter Choice: ");
+    printf("===============================================================================\n");
+    printf("| 1. View Reservations\n");
+    printf("| 2. Edit Item\n");
+    printf("| 3. Delete Item\n");
+    printf("| 4. Return \n");
+    do{printf("| Enter Choice: ");
     scanf("%d", &choice);
-
+    }while(!(choice >= 1 && choice <= 4));
     switch(choice){
         case 1: 
         viewReserve(listStore[index]);
@@ -931,13 +1088,21 @@ void adminViewItem(int index, int type, int limit){
         viewInventory();
         break;
         case 3:
+        do {
+            printf("| Are you sure? [Y/N]: ");
+            scanf("\n%c", &YorN);
+        }while(YorN != 'Y' && YorN != 'N');
+        if (YorN == 'Y'){
         deleteFile(listStore[index], index, limit, type);
+        printf("| File deleted.");
+        } else {
+            printf("| Operation cancelled.");
+        } getch();
         viewInventory();
         break;
         case 4:
         viewInventory();
         break;
-
         default: 
         break;
     }
@@ -946,30 +1111,38 @@ void adminViewItem(int index, int type, int limit){
 //Allows the admin to view a specific build request, and mark it for completion.
 int viewRequest(char uName[9], int index, int delLimit){
     FILE *fptr;
-    int pcBuilder, mode;
+    int pcBuilder, mode, receipt;
     char fileName[100] = "./PROJECT/FINAL/FILES/LISTS/BR/";
     char fileLoc[100] = "./PROJECT/FINAL/FILES/LISTS/BR/LIST.TXT";
     strcat(fileName, uName);
     strcat(fileName, ".TXT");
     clrscr();
-    printf("==========================================================================\n");
+    printf("===============================================================================\n");
+    printf("|     d8888b. d88888b  .d88b.  db    db d88888b .d8888. d888888b .d8888.      |\n");
+    printf("|     88  `8D 88'     .8P  Y8. 88    88 88'     88'  YP `~~88~~' 88'  YP      |\n");
+    printf("|     88oobY' 88ooooo 88    88 88    88 88ooooo `8bo.      88    `8bo.        |\n");
+    printf("|     88`8b   88~~~~~ 88    88 88    88 88~~~~~   `Y8b.    88      `Y8b.      |\n");
+    printf("|     88 `88. 88.     `8P  d8' 88b  d88 88.     db   8D    88    db   8D      |\n");
+    printf("|     88   YD Y88888P  `Y88'Y8 ~Y8888P' Y88888P `8888Y'    YP    `8888Y'      |\n");
+    printf("===============================================================================\n");
     int limit = selectResList(fileName);
     for(int i = 0; i < limit; i++){
         printBuildList(listStore[i], listType[i]);
     }
-    printf("\n========================================================================");
+    printf("===============================================================================\n");
     
-    printf("\n1. Mark Request as Accomplished\n");
-    printf("\n2. Return");
-    printf("\nEnter Choice: ");
+    printf("| 1. Mark Request as Accomplished\n");
+    printf("| 2. Return \n");
+    do{ printf("| Enter Choice: ");
     scanf("%d", &pcBuilder);
+    } while(pcBuilder != 1 && pcBuilder != 2);
     switch(pcBuilder){
         case 1: 
-        checkout(uName, 2); 
+        receipt = checkout(uName, 2); 
         selectList(fileLoc);
         deleteFromList(fileLoc, index, delLimit); 
         fptr = fopen(fileName, "w");
-        fprintf(fptr, "ACM");
+        fprintf(fptr, "ACM,%d", receipt);
         fclose(fptr);
         break;
         case 2:
@@ -987,17 +1160,35 @@ void viewBuildRequests(){
     int selectBuild = 0;
     char listLoc[100] = "./PROJECT/FINAL/FILES/LISTS/BR/LIST.TXT";
     char uName[16];
+    printf("===============================================================================\n");
+    printf("|     d8888b. d88888b  .d88b.  db    db d88888b .d8888. d888888b .d8888.      |\n");
+    printf("|     88  `8D 88'     .8P  Y8. 88    88 88'     88'  YP `~~88~~' 88'  YP      |\n");
+    printf("|     88oobY' 88ooooo 88    88 88    88 88ooooo `8bo.      88    `8bo.        |\n");
+    printf("|     88`8b   88~~~~~ 88    88 88    88 88~~~~~   `Y8b.    88      `Y8b.      |\n");
+    printf("|     88 `88. 88.     `8P  d8' 88b  d88 88.     db   8D    88    db   8D      |\n");
+    printf("|     88   YD Y88888P  `Y88'Y8 ~Y8888P' Y88888P `8888Y'    YP    `8888Y'      |\n");
+    printf("===============================================================================\n");
 
     int limit = selectList(listLoc);
     for (int i = 0; i < limit; i++){
-        printf("Request #%d | UN: %s\n", i+1, listStore[i]);
+        printf("| Request #%d | UN: %-57s |\n", i+1, listStore[i]);
     } 
-
-    printf("Select list: ");
-    scanf("%d", &selectBuild);
+    if (limit == 0){
+        printf("| No requests here!                                                           |\n");
+        printf("===============================================================================\n");
+        goto skip;
+    } 
+    printf("===============================================================================\n");
+    do{
+        printf("| Select list (0 to Return): ");
+        scanf("%d", &selectBuild);
+        if (selectBuild == 0) goto skip;
+    }while(!(selectBuild >= 0 && selectBuild <= limit));
     strcpy(uName, listStore[selectBuild-1]);
     viewRequest(uName, selectBuild-1, limit);
-
+    skip:
+    getch();
+    adminWindow();
 }
 
 //Allows the admin to remove users from the registered pool.
@@ -1010,12 +1201,21 @@ void removeUser(){
     char cartLoc[100] = "./PROJECT/FINAL/FILES/LISTS/CART/";
     char ReqLoc[100] = "./PROJECT/FINAL/FILES/LISTS/RL";
     char fileName[100] = "./PROJECT/FINAL/FILES/USERS/";
-
+    clrscr();
+    printf("===============================================================================\n");
+    printf("|             d8888b. d88888b .88b  d88.  .d88b.  db    db d88888b            |\n");
+    printf("|             88  `8D 88'     88'YbdP`88 .8P  Y8. 88    88 88'                |\n");
+    printf("|             88oobY' 88ooooo 88  88  88 88    88 Y8    8P 88ooooo            |\n");
+    printf("|             88`8b   88~~~~~ 88  88  88 88    88 `8b  d8' 88~~~~~            |\n");
+    printf("|             88 `88. 88.     88  88  88 `8b  d8'  `8bd8'  88.                |\n");
+    printf("|             88   YD Y88888P YP  YP  YP  `Y88P'     YP    Y88888P            |\n");
+    printf("===============================================================================\n");
     int limit = selectList(listLoc);
     for(int i = 0; i < limit; i++){
-        printf("%d. %s\n", i+1, listStore[i]);
+        printf("| %d. %-72s |\n", i+1, listStore[i]);
     }
-    printf("Select user to delete: ");
+    printf("===============================================================================\n");
+    printf("| Select user to delete: ");
     scanf("%d", &select);
     strncpy(selected, listStore[select-1], 8);
     selected[8] = '\0';
@@ -1032,54 +1232,73 @@ void removeUser(){
     remove(cartLoc);
     remove(ReqLoc);
     remove(fileName);
+    printf("| User deleted.");
+    getch();
 }
 
 //This function allows users to register into the system.
 void regUser(){
     FILE *fptr;
-
-    printf("\nEnter Fullname: ");
+    clrscr();
+    printf("===============================================================================\n");
+    printf("|      d8888b. d88888b  d888b  d888888b .d8888. d888888b d88888b d8888b.      |\n");
+    printf("|      88  `8D 88'     88' Y8b   `88'   88'  YP `~~88~~' 88'     88  `8D      |\n");
+    printf("|      88oobY' 88ooooo 88         88    `8bo.      88    88ooooo 88oobY'      |\n");
+    printf("|      88`8b   88~~~~~ 88  ooo    88      `Y8b.    88    88~~~~~ 88`8b        |\n");
+    printf("|      88 `88. 88.     88. ~8~   .88.   db   8D    88    88.     88 `88.      |\n");
+    printf("|      88   YD Y88888P  Y888P  Y888888P `8888Y'    YP    Y88888P 88   YD      |\n");
+    printf("===============================================================================\n");
+    while (getchar() != '\n');
+    printf("| Enter Fullname: ");
     gets(log.fullname);
 
-    printf("Enter Email: ");
+    printf("| Enter Email: ");
     gets(log.email);
 
-    printf("Enter Contact Number: ");
+    printf("| Enter Contact Number: ");
     gets(log.phoneNum);
 
-    printf("Enter Password: ");
+    printf("| Enter Password: ");
     gets(log.password);
 
     generateUser(log.email, log.username);
     fptr = fopen("./PROJECT/FINAL/FILES/USERS/LIST.TXT", "a");
     fprintf(fptr, "%s,", log.username);
     fclose(fptr);
-    printf("\nGenerated Username: %s\n", log.username);
+    printf("| Generated Username: %s\n", log.username);
 
     if (savingUser(log) == 0) {
-        printf("User saved successfully!\n");
+        printf("| User saved successfully!\n");
     } else {
-        printf("Error saving user.\n");
+        printf("| Error saving user.\n");
     }
+    getch();
 }
 
 //Allows the admin to register or remove users.
 int manageUsers(){
     clrscr();
     int adminpref;
-    printf("\n\t\t\t\t-----MANAGE USERS-----");
-    printf("\n1. Register a User");
-    printf("\n2. Remove a User");
-    printf("\n3. Go Back");
-
-    printf("\nEnter Choice: ");
+    printf("===============================================================================\n");
+    printf("|             .88b  d88.  .d8b.  d8b   db  .d8b.   d888b  d88888b             |\n");
+    printf("|             88'YbdP`88 d8' `8b 888o  88 d8' `8b 88' Y8b 88'                 |\n");
+    printf("|             88  88  88 88ooo88 88V8o 88 88ooo88 88      88ooooo             |\n");
+    printf("|             88  88  88 88~~~88 88 V8o88 88~~~88 88  ooo 88~~~~~             |\n");
+    printf("|             88  88  88 88   88 88  V888 88   88 88. ~8~ 88.                 |\n");
+    printf("|             YP  YP  YP YP   YP VP   V8P YP   YP  Y888P  Y88888P             |\n");
+    printf("===============================================================================\n");
+    printf("| 1. Register a User                                                          |\n");
+    printf("| 2. Remove a User                                                            |\n");
+    printf("| 3. Go Back                                                                  |\n");
+    printf("===============================================================================\n");
+    printf("| Enter Choice: ");
     scanf("%d", &adminpref);
     while (getchar() != '\n');
 
     switch(adminpref){
         case 1: 
         regUser();
-        adminWindow();
+        logIn();
         break;
         case 2:
         removeUser();
@@ -1087,7 +1306,7 @@ int manageUsers(){
         break;
         case 3:
         adminWindow();
-
+        break;
     }
 }
 
@@ -1209,20 +1428,27 @@ void addtoPCBuilder(char name[10], int type){
 void userViewItem(int index, int type){
     int choice = 0;
     clrscr();
-    printf("==============================================================================\n");
+    printf("===============================================================================\n");
+    printf("|         d8888b. d88888b d888888b  .d8b.  d888888b db      .d8888.           |\n");
+    printf("|         88  `8D 88'     `~~88~~' d8' `8b   `88'   88      88'  YP           |\n");
+    printf("|         88   88 88ooooo    88    88ooo88    88    88      `8bo.             |\n");
+    printf("|         88   88 88~~~~~    88    88~~~88    88    88        `Y8b.           |\n");
+    printf("|         88  .8D 88.        88    88   88   .88.   88booo. db   8D           |\n");
+    printf("|         Y8888D' Y88888P    YP    YP   YP Y888888P Y88888P `8888Y'           |\n");
+    printf("===============================================================================\n");
     displayItem(listStore[index], type);
-    printf("\n============================================================================\n");
+    printf("===============================================================================\n");
     if(read.stock <= 0) {
-    printf("1. Reserve Item\n");
+    printf("| 1. Reserve Item\n"); //Option shows up without stock
     } else {
-        printf("1. Add Item to Cart\n");
+        printf("| 1. Add Item to Cart\n"); //Option shows up with stock
     }
-    printf("2. Add Item to PC Builder\n");
-    printf("3. Return");
+    printf("| 2.  Add Item to PC Builder\n");
+    printf("| 3.  Return\n");
     do{
-        printf("\nEnter Choice: ");
+        printf("| Enter Choice: ");
         scanf("%d", &choice);
-    }while(choice > 4 && choice < 0);
+    }while(!(choice <= 3 && choice >= 0));
 
     switch(choice){
         case 1: 
@@ -1258,18 +1484,20 @@ void submitRequest(char fileName[100], char uName[9]){
     }
 
     if(flag >= 1){
-        printf("%d missing entries detected!\nSubmission denied.\n", flag);
+        printf("| %d missing entries detected!\n| Submission denied.\n", flag);
     } else {
        fptr = fopen("./PROJECT/FINAL/FILES/LISTS/BR/LIST.TXT", "a");
        fprintf(fptr, "%s,", uName);
+       fclose(fptr);
+       printf("| Build request submitted!");
     }
+    getch();
 }
 
 //This function allows the user to checkout all items in their Cart, creating a receipt in the process.
 int checkout(char uname[9], int type){
     FILE *fptr;
-    int receiptNo = 0;
-    int outputNo = 0;
+    int receiptNo = 0, outputNo = 0, check = 0;
     fptr = fopen("./PROJECT/FINAL/FILES/LISTS/RECEIPTS/NUMGEN.TXT", "r"); 
     fscanf(fptr, "%d", &receiptNo);
     outputNo = receiptNo;
@@ -1298,16 +1526,27 @@ int checkout(char uname[9], int type){
     
 
     int limit = selectResList(listLoc);
-    if(limit == 0) return -1;
-
+    if(limit == 0) {
+    fptr = fopen("./PROJECT/FINAL/FILES/LISTS/RECEIPTS/NUMGEN.TXT", "w"); 
+    fprintf(fptr, "%d", --receiptNo);
+    fclose(fptr);
+        return -1;
+    } 
+    
     fptr = fopen(recLoc, "w");
     fprintf(fptr, "RECEIPT NO: %d\n", receiptNo);
     fprintf(fptr, "BUYER: %s\n", log.fullname);
     fprintf(fptr,"%-10s | %-6s\n", "NAME", "PRICE");
+
     for(int i = 0; i < limit; i++){
         readFile(listStore[i], listType[i]);
+        check = receiptEntry(listStore[i], listType[i]);
+        if(check == -1){
+            continue;
+        }
+        totalPayment += check;
         fprintf(fptr, "%-10s | %-6d\n", listStore[i], read.price);
-        totalPayment += receiptEntry(listStore[i], listType[i]);
+        
     }
     fprintf(fptr, "TOTAL PRICE: %d", totalPayment);
     fclose(fptr);
@@ -1331,30 +1570,51 @@ int viewCart(){
    clrscr();
     
    do{
-    printf("1. Delete Mode\n");
-    printf("2. View Mode\n");
-    printf("Select mode: ");
+    clrscr();
+    printf("===============================================================================\n");
+    printf("|                                                                             |\n");
+    printf("|                     Which would you like to select?                         |\n");
+    printf("|                             1. Delete Mode                                  |\n");
+    printf("|                             2. View Mode                                    |\n");
+    printf("|                                                                             |\n");
+    printf("|                                                                             |\n");
+    printf("===============================================================================\n");
+    printf("| Select mode: ");
     scanf("%d", &mode);
     } while(mode != 1 && mode != 2);
    
     clrscr(); 
-   printf("%-15s %-45s %-6s %-6s\n","BRAND", "NAME", "PRICE", "STOCK");
-   printf("==========================================================================\n");
+    printf("===============================================================================\n");
+    printf("|                       .o88b.  .d8b.  d8888b. d888888b                       |\n");
+    printf("|                      d8P  Y8 d8' `8b 88  `8D `~~88~~'                       |\n");
+    printf("|                      8P      88ooo88 88oobY'    88                          |\n");
+    printf("|                      8b      88~~~88 88`8b      88                          |\n");
+    printf("|                      Y8b  d8 88   88 88 `88.    88                          |\n");
+    printf("|                       `Y88P' YP   YP 88   YD    YP                          |\n");
+    printf("===============================================================================\n");
+    printf("|    %-13s %-45s %-5s %-5s  |\n","BRAND", "NAME", "PRICE", "STOCK");
+    printf("===============================================================================\n");
    int limit = selectResList(fileName);
    for (int i = 0; i < limit; i++){
-        printf("%d.",i+1);
+        printf("| %d.",i+1);
         previewList(listStore[i], listType[i]);
     }
-    printf("\n========================================================================\n");
+    printf("===============================================================================\n");
     if (mode == 1){
-        printf("Select item for deletion: ");
-        scanf("%d", &cart);
+        do{
+            printf("Select item for deletion: ");
+            scanf("%d", &cart);
+            if(limit == 0) goto skip;
+        }while(!(cart >= 1 && cart <= limit));
         deleteFromResList(fileName, cart-1, limit); 
+        printf("| Item successfully deleted!");
+        getch();
         userWindow();
     }
     else {
         printf("Enter any key to return: ");
         getch();
+        skip:
         userWindow();
     }
     return 0;
@@ -1372,30 +1632,51 @@ void viewResList(){
     clrscr();
 
     do{
-    printf("1. Delete Mode\n");
-    printf("2. View Mode\n");
-    printf("Select mode: ");
+    clrscr();
+    printf("===============================================================================\n");
+    printf("|                                                                             |\n");
+    printf("|                     Which would you like to select?                         |\n");
+    printf("|                             1. Delete Mode                                  |\n");
+    printf("|                             2. View Mode                                    |\n");
+    printf("|                                                                             |\n");
+    printf("|                                                                             |\n");
+    printf("===============================================================================\n");
+    printf("| Select mode: ");
     scanf("%d", &mode);
     } while(mode != 1 && mode != 2);
 
     clrscr();
-    printf("%-15s %-45s %-6s %-6s\n","BRAND", "NAME", "PRICE", "STOCK");
-    printf("==========================================================================\n");
+    printf("===============================================================================\n");
+    printf("|      d8888b. d88888b .d8888. d88888b d8888b. db    db d88888b d8888b.       |\n");
+    printf("|      88  `8D 88'     88'  YP 88'     88  `8D 88    88 88'     88  `8D       |\n");
+    printf("|      88oobY' 88ooooo `8bo.   88ooooo 88oobY' Y8    8P 88ooooo 88   88       |\n");
+    printf("|      88`8b   88~~~~~   `Y8b. 88~~~~~ 88`8b   `8b  d8' 88~~~~~ 88   88       |\n");
+    printf("|      88 `88. 88.     db   8D 88.     88 `88.  `8bd8'  88.     88  .8D       |\n");
+    printf("|      88   YD Y88888P `8888Y' Y88888P 88   YD    YP    Y88888P Y8888D'       |\n");
+    printf("===============================================================================\n");
+    printf("|    %-13s %-45s %-5s %-5s  |\n","BRAND", "NAME", "PRICE", "STOCK");
+    printf("===============================================================================\n");
     int limit = selectResList(fileName);
     for(int i = 0; i < limit; i++){
-        printf("%d.", i+1);
+        printf("| %d.", i+1);
         previewList(listStore[i], listType[i]);
     }
-    printf("\n========================================================================\n");
+    printf("===============================================================================\n");
     if (mode == 1){
-        printf("\nSelect item for deletion: ");    
-        scanf("%d", &resList);
+        do{
+            printf("| Select item for deletion: ");    
+            scanf("%d", &resList);
+            if(limit == 0) goto skip;  
+        }while(!(resList >= 1 && resList <= limit));
         deleteFromResList(fileName, resList-1, limit); 
+        printf("| Item successfully deleted!");
+        getch();
         userWindow();
 
     } else {
-        printf("Enter any key to return: \n"); 
+        printf("| Enter any key to return: \n"); 
         getch(); 
+        skip:
         userWindow();
     }
 }
@@ -1412,31 +1693,48 @@ int viewPcBuilder(){
     strcat(fileName, ".TXT");
 
     do{
-        printf("1. Delete Mode\n");
-        printf("2. Submission Mode\n");
-        printf("3. View Mode\n");
-        printf("Select Mode: ");
-        scanf("%d", &mode);
-    } while(mode > 3 && mode < 1);
+    clrscr();
+    printf("===============================================================================\n");
+    printf("|                                                                             |\n");
+    printf("|                     Which would you like to select?                         |\n");
+    printf("|                             1. Delete Mode                                  |\n");
+    printf("|                             2. Submission Mode                              |\n");
+    printf("|                             3. View Mode                                    |\n");
+    printf("|                                                                             |\n");
+    printf("===============================================================================\n");
+    printf("| Select mode: ");
+    scanf("%d", &mode);
+    } while(!(mode >= 1 && mode <= 3));
 
     clrscr();
-    printf("==========================================================================\n");
+    printf("===============================================================================\n");
+    printf("|          d8888b. db    db d888888b db      d8888b. d88888b d8888b.          |\n");
+    printf("|          88  `8D 88    88   `88'   88      88  `8D 88'     88  `8D          |\n");
+    printf("|          88oooY' 88    88    88    88      88   88 88ooooo 88oobY'          |\n");
+    printf("|          88~~~b. 88    88    88    88      88   88 88~~~~~ 88`8b            |\n");
+    printf("|          88   8D 88b  d88   .88.   88booo. 88  .8D 88.     88 `88.          |\n");
+    printf("|          Y8888P' ~Y8888P' Y888888P Y88888P Y8888D' Y88888P 88   YD          |\n");
+    printf("===============================================================================\n");
+    printf("| %-12s %-10s %-25s %-6s                    |\n","COMPONENT", "BRAND", "NAME", "PRICE");
+    printf("===============================================================================\n");
     int limit = selectResList(fileName);
     for(int i = 0; i < limit; i++){
         printBuildList(listStore[i], listType[i]);
     }
-    printf("\n========================================================================\n");
+    printf("===============================================================================\n");
     switch(mode){
         case 1: 
-            printf("Enter Choice: ");
-            scanf("%d", &pcBuilder);
+            do{
+                printf("| Enter Choice: ");
+                scanf("%d", &pcBuilder);
+            }while(!(pcBuilder >= 1 && pcBuilder <= 8));
             deleteFromBuildList(fileName, pcBuilder);
             userWindow();
             break;
         
         case 2:
             do{
-                printf("Are you sure you would like to submit? [Y/N]: ");
+                printf("| Are you sure you would like to submit? [Y/N]: ");
                 scanf("\n%c", &YorN);
             }while(YorN != 'Y' && YorN != 'N');
             
@@ -1450,7 +1748,7 @@ int viewPcBuilder(){
             break;
 
         case 3: 
-            printf("Press any key to return: ");
+            printf("| Press any key to return: ");
             getch();
             userWindow();
             break;
@@ -1464,21 +1762,28 @@ int viewPcBuilder(){
 int viewInventory(){
     int inventory;
     clrscr();
-    printf("\n\t\t\t-----INVENTORY-----");
-    printf("\n1. Storage");
-    printf("\n2. CPU");
-    printf("\n3. GPU");
-    printf("\n4. Motherboard");
-    printf("\n5. RAM");
-    printf("\n6. Fans");
-    printf("\n7. PSU");
-    printf("\n8. Cooler");
-    printf("\n9. Return");
-
-    printf("\n===============");
-    printf("\nEnter Choice: ");
+    printf("===============================================================================\n");
+    printf("|      db    db d888888b d88888b db   d8b   db d888888b d8b   db  d888b       |\n");
+    printf("|      88    88   `88'   88'     88   I8I   88   `88'   888o  88 88' Y8b      |\n");
+    printf("|      Y8    8P    88    88ooooo 88   I8I   88    88    88V8o 88 88           |\n");
+    printf("|      `8b  d8'    88    88~~~~~ Y8   I8I   88    88    88 V8o88 88  ooo      |\n");
+    printf("|       `8bd8'    .88.   88.     `8b d8'8b d8'   .88.   88  V888 88. ~8~      |\n");
+    printf("|         YP    Y888888P Y88888P  `8b8' `8d8'  Y888888P VP   V8P  Y888P       |\n");
+    printf("===============================================================================\n");
+    printf("| 1. Storage                                                                  |\n");
+    printf("| 2. CPU                                                                      |\n");
+    printf("| 3. GPU                                                                      |\n");
+    printf("| 4. Motherboard                                                              |\n");
+    printf("| 5. RAM                                                                      |\n");
+    printf("| 6. Fans                                                                     |\n");
+    printf("| 7. PSU                                                                      |\n");
+    printf("| 8. Cooler                                                                   |\n");
+    printf("| 9. Return                                                                   |\n");
+    printf("===============================================================================\n");
+    do{
+        printf("| Enter Choice: ");
     scanf("%d", &inventory);
-
+    }while(!(inventory >= 1 && inventory <= 9));
     switch (inventory){
     case 1:
         clrscr();
@@ -1514,7 +1819,9 @@ int viewInventory(){
         break;
     case 9:
         clrscr();
-        userWindow();
+        if(admin(log.username)) adminWindow();
+        else userWindow();
+        break;
     default:
         printf("Choice Invalid");
         break;
@@ -1563,7 +1870,7 @@ void previewList(char name[10], int type){
     
     fptr = fopen(fileName, "r");
     fscanf(fptr, "%[^,],%[^,],%d,%d,", lister.brand, lister.name, &lister.price, &lister.stock);
-    printf("%-15s %-45s %-6d %-6d\n", lister.brand, lister.name, lister.price, lister.stock);
+    printf(" %-13s %-45s %-5d %-5d  |\n", lister.brand, lister.name, lister.price, lister.stock);
 
     fclose(fptr);
 }
@@ -1581,12 +1888,12 @@ void displayItem(char name[10], int type){
         fptr = fopen(fileNamesto, "r");
 
         fscanf(fptr, "%[^,],%[^,],%d,%d,%d,%[^,]", lister.brand,  lister.name, &lister.price, &lister.stock, &lister.storage.amount, lister.storage.type);
-        printf("Brand: %s\n", lister.brand);
-        printf("Name: %s\n", lister.name);
-        printf("Storage Type: %s\n", lister.storage.type);
-        printf("Amount of Storage: %d GB\n", lister.storage.amount);
-        printf("Current Price: %d Php\n", lister.price);
-        printf("Stock: %d\n", lister.stock);
+        printf("| Brand: %-68s |\n", lister.brand);
+        printf("| Name: %-69s |\n", lister.name);
+        printf("| Storage Type: %-61s |\n", lister.storage.type);
+        printf("| Amount of Storage (in GB): %-47d  |\n", lister.storage.amount);
+        printf("| Current Price: $%-59d |\n", lister.price);
+        printf("| Stock: %-68d |\n", lister.stock);
         read.stock = lister.stock;
         break;
 
@@ -1597,11 +1904,11 @@ void displayItem(char name[10], int type){
         fptr = fopen(fileNameCPU, "r");
 
         fscanf(fptr, "%[^,],%[^,],%d,%d,%d\n", lister.brand,  lister.name, &lister.price, &lister.stock, &lister.cpu.MHz);
-        printf("Brand: %s\n", lister.brand);
-        printf("Name: %s\n", lister.name);
-        printf("Clock Speed: %d MHz\n", lister.cpu.MHz);
-        printf("Current Price: %d Php\n", lister.price);
-        printf("Stock: %d\n", lister.stock);
+        printf("| Brand: %-68s |\n", lister.brand);
+        printf("| Name: %-69s |\n", lister.name);
+        printf("| Clock Speed (in MHz): %-53d |\n", lister.cpu.MHz);
+        printf("| Current Price: $%-59d |\n", lister.price);
+        printf("| Stock: %-68d |\n", lister.stock);
         read.stock = lister.stock;
         break;
 
@@ -1612,11 +1919,11 @@ void displayItem(char name[10], int type){
         fptr = fopen(fileNameGPU, "r");
 
         fscanf(fptr, "%[^,],%[^,],%d,%d,%d", lister.brand, lister.name, &lister.price, &lister.stock, &lister.gpu.VRAM);
-        printf("Brand: %s\n", lister.brand);
-        printf("Name: %s\n", lister.name);
-        printf("Video Memory: %d GB\n", lister.gpu.VRAM);
-        printf("Current Price: %d Php\n", lister.price);
-        printf("Stock: %d\n", lister.stock);
+        printf("| Brand: %-68s |\n", lister.brand);
+        printf("| Name: %-69s |\n", lister.name);
+        printf("| Video Memory (in GB): %-53d |\n", lister.gpu.VRAM);
+        printf("| Current Price: $%-59d |\n", lister.price);
+        printf("| Stock: %-68d |\n", lister.stock);
         read.stock = lister.stock;
         break;
 
@@ -1627,10 +1934,10 @@ void displayItem(char name[10], int type){
         fptr = fopen(fileNameMobo, "r");
 
         fscanf(fptr, "%[^,],%[^,],%d,%d", lister.brand, lister.name, &lister.price, &lister.stock);
-        printf("Brand: %s\n", lister.brand);
-        printf("Name: %s\n", lister.name);
-        printf("Current Price: %d Php\n", lister.price);
-        printf("Stock: %d\n", lister.stock);
+        printf("| Brand: %-68s |\n", lister.brand);
+        printf("| Name: %-69s |\n", lister.name);
+        printf("| Current Price: $%-59d |\n", lister.price);
+        printf("| Stock: %-68d |\n", lister.stock);
         read.stock = lister.stock;
         break;
 
@@ -1641,12 +1948,12 @@ void displayItem(char name[10], int type){
         fptr = fopen(fileNameRAM, "r");
 
         fscanf(fptr, "%[^,],%[^,],%d,%d,%d,%d", lister.brand, lister.name,  &lister.price, &lister.stock, &lister.ram.MHz, &lister.ram.amount);
-        printf("Brand: %s\n", lister.brand);
-        printf("Name: %s\n", lister.name);
-        printf("RAM Speed: %d MHz\n", lister.ram.MHz);
-        printf("RAM Capacity: %d GB\n", lister.ram.amount);
-        printf("Current Price: %d\n", lister.price);
-        printf("Stock: %d\n", lister.stock);
+        printf("| Brand: %-68s |\n", lister.brand);
+        printf("| Name: %-69s |\n", lister.name);
+        printf("| RAM Speed (in MHz): %-55d |\n", lister.ram.MHz);
+        printf("| RAM Capacity (in GB): %-53d |\n", lister.ram.amount);
+        printf("| Current Price: $%-59d |\n", lister.price);
+        printf("| Stock: %-68d |\n", lister.stock);
         read.stock = lister.stock;
         break;
 
@@ -1657,11 +1964,11 @@ void displayItem(char name[10], int type){
         fptr = fopen(fileNameFan, "r");
 
         fscanf(fptr, "%[^,],%[^,],%d,%d,%d", lister.brand, lister.name, &lister.price, &lister.stock, &lister.fans.amount);
-        printf("Brand: %s\n", lister.brand);
-        printf("Name: %s\n", lister.name);
-        printf("Amount of Fans: %d Fans per Pack\n", lister.fans.amount);
-        printf("Current Price: %d\n", lister.price);
-        printf("Stock: %d\n", lister.stock);
+        printf("| Brand: %-68s |\n", lister.brand);
+        printf("| Name: %-69s |\n", lister.name);
+        printf("| Amount of Fans per pack: %-50d |\n", lister.fans.amount);
+        printf("| Current Price: $%-59d |\n", lister.price);
+        printf("| Stock: %-68d |\n", lister.stock);
         read.stock = lister.stock;
         break;
 
@@ -1672,11 +1979,11 @@ void displayItem(char name[10], int type){
         fptr = fopen(fileNamePSU, "r");
 
         fscanf(fptr, "%[^,],%[^,],%d,%d,%d", lister.brand, lister.name, &lister.price, &lister.stock, &lister.psu.wattage);
-        printf("Brand: %s\n", lister.brand);
-        printf("Name: %s\n", lister.name);
-        printf("Wattage: %dW\n", lister.psu.wattage);
-        printf("Current Price: %d\n", lister.price);
-        printf("Stock: %d\n", lister.stock);
+        printf("| Brand: %-68s |\n", lister.brand);
+        printf("| Name: %-69s| \n", lister.name);
+        printf("| Wattage (in W): %-59d |\n", lister.psu.wattage);
+        printf("| Current Price: $%-59d |\n", lister.price);
+        printf("| Stock: %-68d |\n", lister.stock);
         read.stock = lister.stock;
         break;
 
@@ -1687,11 +1994,11 @@ void displayItem(char name[10], int type){
         fptr = fopen(fileNameCool, "r");
 
         fscanf(fptr, "%[^,],%[^,],%d,%d,%[^,]", lister.brand, lister.name, &lister.price, &lister.stock, lister.cooler.type);
-        printf("Brand: %s\n", lister.brand);
-        printf("Name: %s\n", lister.name);
-        printf("Cooler Type: %s\n", lister.cooler.type);
-        printf("Current Price: %d\n",lister.price);
-        printf("Stock: %d\n", lister.stock);
+        printf("| Brand: %-68s |\n", lister.brand);
+        printf("| Name: %-69s |\n", lister.name);
+        printf("| Cooler Type: %-62s |\n", lister.cooler.type);
+        printf("| Current Price: $%-59d |\n",lister.price);
+        printf("| Stock: %-68d |\n", lister.stock);
         read.stock = lister.stock;
 
     }fclose(fptr);
@@ -1706,49 +2013,49 @@ void printBuildList(char name[10], int type){
     switch(type){
         case 1: //storage
         strcat(fileName, "STO/");
-        printf("%-15s", "Storage: ");
+        printf("%-15s", "| 5.Storage: ");
         break;
         case 2: //cpu
         strcat(fileName, "CPU/");
-        printf("%-15s", "CPU: ");
+        printf("%-15s", "| 2.CPU: ");
         break;
         case 3: //gpu
         strcat(fileName, "GPU/");
-        printf("%-15s", "GPU:" );
+        printf("%-15s", "| 3.GPU:" );
         break;
         case 4: //Motherboard
         strcat(fileName, "MOBO/");
-        printf("%-15s", "Motherboard: ");
+        printf("%-15s", "| 1.MoBoard: ");
         break;
         case 5: //RAM
         strcat(fileName, "RAM/");
-        printf("%-15s", "RAM (2x): ");
+        printf("%-15s", "| 4.RAM: ");
         break;
         case 6: //Fan
         strcat(fileName, "FANS/");
-        printf("%-15s", "Fans:");
+        printf("%-15s", "| 6.Fans:");
         break;
         case 7: //PSU
         strcat(fileName, "PSU/");
-        printf("%-15s", "PSU: ");
+        printf("%-15s", "| 7.PSU: ");
         break;
         case 8: //Cooler
         strcat(fileName, "COOL/");
-        printf("%-15s", "Cooler: ");
+        printf("%-15s", "| 8.Cooler: ");
     }
 
     if(strncmp(name,"EMPTY",4) == 0){
-        printf("%-10s %-25s %-6d\n", "NONE", "NONE", 0);
+        printf("%-10s %-25s %-6d                    |\n", "NONE", "NONE", 0);
     } else {
 
     strcat(fileName, name);
     strcat(fileName, ".TXT");
     fptr = fopen(fileName, "r");
       if(fptr == NULL){
-        printf("Create your list by adding 1 item to your buildlist!\n");
+        printf("This item does not exist!\n");
       } else {
         fscanf(fptr, "%[^,],%[^,],%d,%d", lister.brand, lister.name, &lister.price, &lister.stock);
-        printf("%-10s %-25s %-6d\n", lister.brand, lister.name, lister.price);
+        printf("%-10s %-25s %-6d                    |\n", lister.brand, lister.name, lister.price);
         fclose(fptr);
       }
     }
@@ -1758,153 +2065,349 @@ void printBuildList(char name[10], int type){
 int iStorage(){
     int storage;
     clrscr();
-    
-    printf("%-15s %-45s %-6s %-6s\n","BRAND", "NAME", "PRICE", "STOCK");
-    printf("==============================================================================\n");
+    printf("===============================================================================\n");
+    printf("|          .d8888. d888888b  .d88b.  d8888b.  .d8b.   d888b  d88888b          |\n");
+    printf("|          88'  YP `~~88~~' .8P  Y8. 88  `8D d8' `8b 88' Y8b 88'              |\n");
+    printf("|          `8bo.      88    88    88 88oobY' 88ooo88 88      88ooooo          |\n");
+    printf("|            `Y8b.    88    88    88 88`8b   88~~~88 88  ooo 88~~~~~          |\n");
+    printf("|          db   8D    88    `8b  d8' 88 `88. 88   88 88. ~8~ 88.              |\n");
+    printf("|          `8888Y'    YP     `Y88P'  88   YD YP   YP  Y888P  Y88888P          |\n");
+    printf("===============================================================================\n");
+    printf("|    %-13s %-45s %-5s %-5s  |\n","BRAND", "NAME", "PRICE", "STOCK");
+    printf("===============================================================================\n");
     int limit = selectList("./PROJECT/FINAL/FILES/PARTS/STO/LIST.TXT");
        for(int i = 0; i < limit; i++){
-            printf("%d. ", i+1);
+            printf("| %d.", i+1);
          previewList(listStore[i], 1);
        }
-    printf("\n=============================================================================");
-    printf("\nEnter Choice: ");
-    scanf("%d", &storage);
+    printf("===============================================================================\n");
+    do{
+        if (limit == 0) { storage = 0; break; }
+        printf("| Enter Choice (0 to Return): ");
+        scanf("%d", &storage);
+    }while(!(storage >= 0 && storage <= limit));
+    if(storage == 0) {
+        viewInventory();
+    } else {
     if(admin(log.username)) adminViewItem(storage-1,1,limit); //Admin Command
     else userViewItem(storage-1,1); //User Command
     return 0;
+    }
 }
 
 //CPU display list function.
 int iCPU(){
     int cpu;
     clrscr();
-    printf("%-15s %-45s %-6s %-6s\n","BRAND", "NAME", "PRICE", "STOCK");
-    printf("==============================================================================\n");
+    printf("===============================================================================\n");
+    printf("|                           .o88b. d8888b. db    db                           |\n");
+    printf("|                          d8P  Y8 88  `8D 88    88                           |\n");
+    printf("|                          8P      88oodD' 88    88                           |\n");
+    printf("|                          8b      88~~~   88    88                           |\n");
+    printf("|                          Y8b  d8 88      88b  d88                           |\n");
+    printf("|                           `Y88P' 88      ~Y8888P'                           |\n");
+    printf("===============================================================================\n");
+    printf("|    %-13s %-45s %-5s %-5s  |\n","BRAND", "NAME", "PRICE", "STOCK");
+    printf("===============================================================================\n");
     int limit = selectList("./PROJECT/FINAL/FILES/PARTS/CPU/LIST.TXT");
         for(int i = 0; i < limit; i++){
-            printf("%d. ", i+1);
+            printf("| %d.", i+1);
             previewList(listStore[i], 2);
         }
-    printf("\n============================================================================");
-    printf("\nEnter Choice: ");
-    scanf("%d", &cpu);
-    if(admin(log.username)) adminViewItem(cpu-1,2,limit);
-    else userViewItem(cpu-1,2);
-      return 0;
+    printf("===============================================================================\n");
+    do{
+        if (limit == 0) { cpu = 0; break; }
+        printf("| Enter Choice (0 to Return): ");
+        scanf("%d", &cpu);
+    }while(!(cpu >= 0 && cpu <= limit));
+    if(cpu == 0) {
+        viewInventory(); 
+    } else {
+    if(admin(log.username)) adminViewItem(cpu-1,2,limit); //Admin Command
+    else userViewItem(cpu-1,2); //User Command
+    return 0;
+    }
 }
 
 //GPU display list function.
 int iGPU(){
     int gpu;
     clrscr();
-    printf("%-15s %-45s %-6s %-6s\n","BRAND", "NAME", "PRICE", "STOCK");
-    printf("==============================================================================\n");
+    printf("===============================================================================\n");
+    printf("|                          d888b  d8888b. db    db                            |\n");
+    printf("|                         88' Y8b 88  `8D 88    88                            |\n");
+    printf("|                         88      88oodD' 88    88                            |\n");
+    printf("|                         88  ooo 88~~~   88    88                            |\n");
+    printf("|                         88. ~8~ 88      88b  d88                            |\n");
+    printf("|                          Y888P  88      ~Y8888P'                            |\n");
+    printf("===============================================================================\n");
+    printf("|    %-13s %-45s %-5s %-5s  |\n","BRAND", "NAME", "PRICE", "STOCK");
+    printf("===============================================================================\n");
     int limit = selectList("./PROJECT/FINAL/FILES/PARTS/GPU/LIST.TXT");
         for(int i = 0; i < limit; i++){
-            printf("%d. ", i+1);
+            printf("| %d.", i+1);
             previewList(listStore[i], 3);
         }
-    printf("\n============================================================================");
-    printf("\nEnter Choice: ");
-    scanf("%d", &gpu);
-    if(admin(log.username)) adminViewItem(gpu-1,3,limit);
-    else userViewItem(gpu-1,3);
-      return 0;
+    printf("===============================================================================\n");
+    do{
+        if (limit == 0) { gpu = 0; break; }
+        printf("| Enter Choice (0 to Return): ");
+        scanf("%d", &gpu);
+    }while(!(gpu >= 0 && gpu <= limit));
+    if(gpu == 0) {
+        viewInventory();
+    } else {
+    if(admin(log.username)) adminViewItem(gpu-1,3,limit); //Admin Command
+    else userViewItem(gpu-1,3); //User Command
+    return 0;
+    }
 }
 
 //Motherboard display list function.
 int iMotherboard(){
     int motherboard;
     clrscr();
-    printf("%-15s %-45s %-6s %-6s\n","BRAND", "NAME", "PRICE", "STOCK");
+    printf("===============================================================================\n");
+    printf("|                     .88b  d88.  .d88b.  d8888b.  .d88b.                     |\n");
+    printf("|                     88'YbdP`88 .8P  Y8. 88  `8D .8P  Y8.                    |\n");
+    printf("|                     88  88  88 88    88 88oooY' 88    88                    |\n");
+    printf("|                     88  88  88 88    88 88~~~b. 88    88                    |\n");
+    printf("|                     88  88  88 `8b  d8' 88   8D `8b  d8'                    |\n");
+    printf("|                     YP  YP  YP  `Y88P'  Y8888P'  `Y88P'                     |\n");
+    printf("===============================================================================\n");
+    printf("|    %-13s %-45s %-5s %-5s  |\n","BRAND", "NAME", "PRICE", "STOCK");
     printf("===============================================================================\n");
     int limit = selectList("./PROJECT/FINAL/FILES/PARTS/MOBO/LIST.TXT");
         for(int i = 0; i < limit; i++){
-            printf("%d. ", i+1);
+            printf("| %d.", i+1);
             previewList(listStore[i], 4);
         }
-    printf("\n=============================================================================");
-    printf("\nEnter Choice: ");
-    scanf("%d", &motherboard);
-    if(admin(log.username)) adminViewItem(motherboard-1,4,limit);
-    else userViewItem(motherboard-1,4);
-      return 0;
+    printf("===============================================================================\n");
+    do{
+        if (limit == 0) { motherboard = 0; break; }
+        printf("| Enter Choice (0 to Return): ");
+        scanf("%d", &motherboard);
+    }while(!(motherboard >= 0 && motherboard <= limit));
+    if(motherboard == 0) {
+        viewInventory(); 
+    } else {
+    if(admin(log.username)) adminViewItem(motherboard-1,4,limit); //Admin Command
+    else userViewItem(motherboard-1,4); //User Command
+    return 0;
+    }
 }
 
 //RAM display list function.
 int iRAM(){
     int ram;
     clrscr();
-    printf("%-15s %-45s %-6s %-6s\n","BRAND", "NAME", "PRICE", "STOCK");
-    printf("==============================================================================\n");
+    printf("===============================================================================\n");
+    printf("|                         d8888b.  .d8b.  .88b  d88.                          |\n");
+    printf("|                         88  `8D d8' `8b 88'YbdP`88'                         |\n");
+    printf("|                         88oobY' 88ooo88 88  88  88                          |\n");
+    printf("|                         88`8b   88~~~88 88  88  88                          |\n");
+    printf("|                         88 `88. 88   88 88  88  88                          |\n");
+    printf("|                         88   YD YP   YP YP  YP  YP                          |\n");
+    printf("===============================================================================\n");
+    printf("|    %-13s %-45s %-5s %-5s  |\n","BRAND", "NAME", "PRICE", "STOCK");
+    printf("===============================================================================\n");
     int limit = selectList("./PROJECT/FINAL/FILES/PARTS/RAM/LIST.TXT");
         for(int i = 0; i < limit; i++){
-            printf("%d. ", i+1);
+            printf("| %d.", i+1);
             previewList(listStore[i], 5);
         }
-    printf("\n============================================================================");
-    printf("\nEnter Choice: ");
-    scanf("%d", &ram);
-    if(admin(log.username)) adminViewItem(ram-1,5,limit);
-    else userViewItem(ram-1,5);
-      return 0;
+    printf("===============================================================================\n");
+    do{
+        if (limit == 0) { ram = 0; break; }
+        printf("| Enter Choice (0 to Return): ");
+        scanf("%d", &ram);
+    }while(!(ram >= 0 && ram <= limit));
+    if(ram == 0) {
+        viewInventory(); 
+    } else {
+    if(admin(log.username)) adminViewItem(ram-1,5,limit); //Admin Command
+    else userViewItem(ram-1,5); //User Command
+    return 0;
+    }
 }
 
 //Fans display list function.
 int iFans(){
     int fans;
     clrscr();
-    printf("%-15s %-45s %-6s %-6s\n","BRAND", "NAME", "PRICE", "STOCK");
-    printf("==============================================================================\n");
+    printf("===============================================================================\n");
+    printf("|                      d88888b  .d8b.  d8b   db .d8888.                       |\n");
+    printf("|                      88'     d8' `8b 888o  88 88'  YP                       |\n");
+    printf("|                      88ooo   88ooo88 88V8o 88 `8bo.                         |\n");
+    printf("|                      88~~~   88~~~88 88 V8o88   `Y8b.                       |\n");
+    printf("|                      88      88   88 88  V888 db   8D                       |\n");
+    printf("|                      YP      YP   YP VP   V8P `8888Y'                       |\n");
+    printf("===============================================================================\n");
+    printf("|    %-13s %-45s %-5s %-5s  |\n","BRAND", "NAME", "PRICE", "STOCK");
+    printf("===============================================================================\n");
     int limit = selectList("./PROJECT/FINAL/FILES/PARTS/FANS/LIST.TXT");
         for(int i = 0; i < limit; i++){
-            printf("%d. ", i+1);
+            printf("| %d.", i+1);
             previewList(listStore[i], 6);
         }
-    printf("\n============================================================================");
-    printf("\nEnter Choice: ");
-    scanf("%d", &fans);
-    if(admin(log.username)) adminViewItem(fans-1,6,limit);
-    else userViewItem(fans-1,6);
-  return 0;
+    printf("===============================================================================\n");
+    do{
+        if (limit == 0) { fans = 0; break; }
+        printf("| Enter Choice (0 to Return): ");
+        scanf("%d", &fans);
+    }while(!(fans >= 0 && fans <= limit));
+    if(fans == 0) {
+        viewInventory(); 
+    } else {
+    if(admin(log.username)) adminViewItem(fans-1,6,limit); //Admin Command
+    else userViewItem(fans-1,6); //User Command
+    return 0;
+    }
 }
 
 //PSU display list function.
 int iPSU(){
     int psu;
     clrscr();
-    printf("%-15s %-45s %-6s %-6s\n","BRAND", "NAME", "PRICE", "STOCK");
-    printf("==============================================================================\n");
+    printf("===============================================================================\n");
+    printf("|                          d8888b. .d8888. db    db                           |\n");
+    printf("|                          88  `8D 88'  YP 88    88                           |\n");
+    printf("|                          88oodD' `8bo.   88    88                           |\n");
+    printf("|                          88~~~     `Y8b. 88    88                           |\n");
+    printf("|                          88      db   8D 88b  d88                           |\n");
+    printf("|                          88      `8888Y' ~Y8888P'                           |\n");
+    printf("===============================================================================\n");
+    printf("|    %-13s %-45s %-5s %-5s  |\n","BRAND", "NAME", "PRICE", "STOCK");
+    printf("===============================================================================\n");
     int limit = selectList("./PROJECT/FINAL/FILES/PARTS/PSU/LIST.TXT");
         for(int i = 0; i < limit; i++){
-            printf("%d. ", i+1);
+            printf("| %d.", i+1);
             previewList(listStore[i], 7);
         }
-    printf("\n============================================================================");
-    printf("\nEnter Choice: ");
-    scanf("%d", &psu);
-    if(admin(log.username)) adminViewItem(psu-1,7,limit);
-    else userViewItem(psu-1,7);
-      return 0;
+    printf("===============================================================================\n");
+    do{
+        if (limit == 0) { psu = 0; break; }
+        printf("| Enter Choice (0 to Return): ");
+        scanf("%d", &psu);
+    }while(!(psu >= 0 && psu <= limit));
+    if(psu == 0) {
+        viewInventory();
+    } else {
+    if(admin(log.username)) adminViewItem(psu-1,7,limit); //Admin Command
+    else userViewItem(psu-1,7); //User Command
+    return 0;
+    }
 }
 
 //Cooling display list function.
 int iCooler(){
     int cooler;
     clrscr();
-    printf("%-15s %-45s %-6s %-6s\n","BRAND", "NAME", "PRICE", "STOCK");
-    printf("==============================================================================\n");
+    printf("===============================================================================\n");
+    printf("|              .o88b.  .d88b.   .d88b.  db      d88888b d8888b.               |\n");
+    printf("|             d8P  Y8 .8P  Y8. .8P  Y8. 88      88'     88  `8D               |\n");
+    printf("|             8P      88    88 88    88 88      88ooooo 88oobY'               |\n");
+    printf("|             8b      88    88 88    88 88      88~~~~~ 88`8b                 |\n");
+    printf("|             Y8b  d8 `8b  d8' `8b  d8' 88booo. 88.     88 `88.               |\n");
+    printf("|              `Y88P'  `Y88P'   `Y88P'  Y88888P Y88888P 88   YD               |\n");
+    printf("===============================================================================\n");
+    printf("|    %-13s %-45s %-5s %-5s  |\n","BRAND", "NAME", "PRICE", "STOCK");
+    printf("===============================================================================\n");
     int limit = selectList("./PROJECT/FINAL/FILES/PARTS/COOL/LIST.TXT");
         for(int i = 0; i < limit; i++){
-            printf("%d. ", i+1);
+            printf("| %d.", i+1);
             previewList(listStore[i], 8);
         }
-    printf("\n============================================================================");
-    printf("\nEnter Choice: ");
-    scanf("%d", &cooler);
-    if(admin(log.username)) adminViewItem(cooler-1,8,limit);
-    else userViewItem(cooler-1,8);
+    printf("===============================================================================\n");
+    do{
+        if (limit == 0) { cooler = 0; break; }
+        printf("| Enter Choice (0 to Return): ");
+        scanf("%d", &cooler);
+    }while(!(cooler >= 0 && cooler <= limit));
+    if(cooler == 0) {
+        viewInventory();
+    } else {
+    if(admin(log.username)) adminViewItem(cooler-1,8,limit); //Admin Command
+    else userViewItem(cooler-1,8); //User Command
     return 0;
+    }
+}
+
+void checkoutPopup(int receiptNo){
+    clrscr();
+
+    if(receiptNo == -1){
+    printf("===============================================================================\n");
+    printf("|                                                                             |\n");
+    printf("|                         .d888b. .d888b. .d888b.                             |\n");
+    printf("|                          VP  `8D VP  `8D VP  `8D                            |\n");
+    printf("|                            odD'    odD'    odD'                             |\n");
+    printf("|                            8P'     8P'     8P'                              |\n");
+    printf("|                            oo      oo      oo                               |\n");
+    printf("|                            VP      VP      VP                               |\n");
+    printf("|                                                                             |\n");
+    printf("|                            Huh? The cart's empty!                           |\n");
+    printf("|                       You can't checkout with an empty cart!                |\n");
+    printf("|                                                                             |\n");
+    printf("|                               Add more items!                               |\n");
+    printf("|                                                                             |\n");
+    printf("===============================================================================\n");
+    } else {
+    printf("===============================================================================\n");
+    printf("|     .o88b. db   db d88888b  .o88b. db   dD  .d88b.  db    db d888888b       |\n");
+    printf("|    d8P  Y8 88   88 88'     d8P  Y8 88 ,8P' .8P  Y8. 88    88 `~~88~~'       |\n");
+    printf("|    8P      88ooo88 88ooooo 8P      88,8P   88    88 88    88    88          |\n");
+    printf("|    8b      88~~~88 88~~~~~ 8b      88`8b   88    88 88    88    88          |\n");
+    printf("|    Y8b  d8 88   88 88.     Y8b  d8 88 `88. `8b  d8' 88b  d88    88          |\n");
+    printf("|     `Y88P' YP   YP Y88888P  `Y88P' YP   YD  `Y88P'  ~Y8888P'    YP          |\n");
+    printf("|                                                                             |\n");
+    printf("|                  You've successfully checked out!                           |\n");
+    printf("|                     Your cart has been cleared.                             |\n");
+    printf("|                                                                             |\n");
+    printf("|                            Receipt No: %-5d                                |\n", receiptNo);
+    printf("|                          SAVE THIS NUMBER!!!                                |\n");
+    printf("|                                                                             |\n");
+    printf("===============================================================================\n");
+    
+}
+}
+
+void restockPopup(){
+    clrscr();
+    printf("===============================================================================\n");
+    printf("|                                                                             |\n");
+    printf("|            d8b   db  .d88b.  d888888b d888888b  .o88b. d88888b              |\n");
+    printf("|            888o  88 .8P  Y8. `~~88~~'   `88'   d8P  Y8 88'                  |\n");
+    printf("|            88V8o 88 88    88    88       88    8P      88ooooo              |\n");
+    printf("|            88 V8o88 88    88    88       88    8b      88~~~~~              |\n");
+    printf("|            88  V888 `8b  d8'    88      .88.   Y8b  d8 88.                  |\n");
+    printf("|            VP   V8P  `Y88P'     YP    Y888888P  `Y88P' Y88888P              |\n");
+    printf("|                                                                             |\n");
+    printf("|               An item in your reserve list is now in stock!                 |\n");
+    printf("|                 These items have been moved to your cart.                   |\n");
+    printf("|                                                                             |\n");
+    printf("|                                                                             |\n");
+    printf("|                                                                             |\n");
+    printf("===============================================================================\n");
+}
+
+void builtPopup(int receiptNo){
+    clrscr();
+    printf("===============================================================================\n");
+    printf("|                                                                             |\n");
+    printf("|            d8b   db  .d88b.  d888888b d888888b  .o88b. d88888b              |\n");
+    printf("|            888o  88 .8P  Y8. `~~88~~'   `88'   d8P  Y8 88'                  |\n");
+    printf("|            88V8o 88 88    88    88       88    8P      88ooooo              |\n");
+    printf("|            88 V8o88 88    88    88       88    8b      88~~~~~              |\n");
+    printf("|            88  V888 `8b  d8'    88      .88.   Y8b  d8 88.                  |\n");
+    printf("|            VP   V8P  `Y88P'     YP    Y888888P  `Y88P' Y88888P              |\n");
+    printf("|                                                                             |\n");
+    printf("|                Your build request has been accomplished!                    |\n");
+    printf("|                          Receipt No: %-5d                                  |\n");
+    printf("|                                                                             |\n");
+    printf("|                                                                             |\n");
+    printf("|                                                                             |\n");
+    printf("===============================================================================\n");
 }
 
 //FUNCTIONS RELATED TO OUTPUT END HERE
@@ -1922,20 +2425,18 @@ void restockNotify(){
     strcat(listLoc, ".TXT");
 
     int limit = selectResList(listLoc);
-
     for(int i = 0; i < limit; i++){
         readFile(listStore[i],listType[i]);
-        
         if(read.stock >= 1){
             addtoCart(listStore[i], listType[i]);
             flag++;
-            deleteFromResList(listLoc, i, limit);
+            limit = deleteFromResList(listLoc, i, limit);
+            --i;
         }
     }
 
     if(flag >= 1){
-        printf("An item in your reserve list is now on stock!\n");
-        printf("They have been added to your cart.\n");
+        restockPopup();
         getch();
     }
 
@@ -1947,17 +2448,18 @@ void builtNotify(){
     char brLoc[100] = "./PROJECT/FINAL/FILES/LISTS/BR/";
     char key[5];
     char Name[9];
+    int receiptNo;
     strncpy(Name, log.username, 8);
     Name[8] = '\0';
     strcat(brLoc, Name);
     strcat(brLoc, ".TXT");
 
     fptr = fopen(brLoc, "r");
-    fscanf(fptr,"%3s,",key);
+    fscanf(fptr,"%3s,%d",key, &receiptNo);
     fclose(fptr);
 
     if(strcmp("ACM",key) == 0){
-        printf("Your build request has been completed!\n");
+        builtPopup(receiptNo);
         remove(brLoc);
         getch();
     } 
@@ -2011,23 +2513,29 @@ int generateUser(char email[50], char userName[50]){
 
 //Allows the user or admin to log-in to their account.
 int logIn(){
+    int tries = 3;
+    goBack:
     char userInput[100], password[100], fileName[105] = "./PROJECT/FINAL/FILES/USERS/";
     char line[300];
     int flag = 0;
     clrscr();
-    printf("\n\t\t\t\t-----LOGIN-----");
-    printf("\nEnter Username: ");
+    printf("===============================================================================\n");
+    printf("|                 db       .d88b.   d888b  d888888b d8b   db                  |\n");
+    printf("|                 88      .8P  Y8. 88' Y8b   `88'   888o  88                  |\n");
+    printf("|                 88      88    88 88         88    88V8o 88                  |\n");
+    printf("|                 88      88    88 88  ooo    88    88 V8o88                  |\n");
+    printf("|                 88booo. `8b  d8' 88. ~8~   .88.   88  V888                  |\n");
+    printf("|                 Y88888P  `Y88P'   Y888P  Y888888P VP   V8P                  |\n");
+    printf("===============================================================================\n");
+    printf("| Enter Username: ");
     gets(userInput);
-    printf("Enter Password: ");
+    printf("| Enter Password: ");
     gets(password);
 
     strcat(fileName, userInput);
     strcat(fileName, ".txt");
 
-    FILE *fptr = fopen(fileName, "r");
-    if(fptr == NULL){
-    printf("No User Found.");
-    }
+    FILE *fptr = fopen(fileName, "r"); 
     
     while(fscanf(fptr, "%[^,],%[^,],%[^,],%[^,],%s", log.fullname, log.email, log.username, log.phoneNum, log.password) == 5){
     if (strcmp(log.username, userInput) == 0 && strcmp(log.password, password) == 0 ){
@@ -2038,20 +2546,26 @@ int logIn(){
     fclose(fptr);
 
     if(flag == 1){
-        if(admin(log.username))
-             { adminWindow(); }
-        else { 
-            restockNotify();
+        if(admin(log.username)){
+              adminWindow();  //Event if admin == TRUE
+        } else { 
+            restockNotify();  //Event if admin == FALSE
             builtNotify();
             userWindow(); 
         }
-        }
-        else {
-            printf("\nINVALID USERNAME OR PASSWORD!");
-        }
+    } else {                  //Event if no valid username or password is entered.
+            printf("| Mismatched Username or Password. Try Again!\n");
+            printf("| You have %d tries left!", tries);
+            getch();
+            if(tries != 0) {
+                --tries;
+                goto goBack;
+            }
+            
+     }
     return 0;
-   }
-
+   
+} 
 
 //A function that only starts once when the program is first intialized. Allows the admin to make their account.
 void firstBootReg(){
@@ -2076,18 +2590,26 @@ void userWindow(){
     strncpy(uname, log.username, 9);
     uname[8] = '\0';
     clrscr();
-    printf("\nHello %s!", log.username);
-            printf("\n\t\t\t\t-----USER WINDOW-----");
-            printf("\n1. View Inventory");
-            printf("\n2. View Reserved Items List");
-            printf("\n3. View Cart");
-            printf("\n4. View PC Builder");
-            printf("\n5. Checkout");
-            printf("\n6. Exit");
-    
-            printf("\n====================");
-            printf("\nEnter Choice: ");
+    printf("===============================================================================\n");
+    printf("|                       db    db .d8888. d88888b d8888b.                      |\n");
+    printf("|                       88    88 88'  YP 88'     88  `8D                      |\n");
+    printf("|                       88    88 `8bo.   88ooooo 88oobY'                      |\n");
+    printf("|                       88    88   `Y8b. 88~~~~~ 88`8b                        |\n");
+    printf("|                       88b  d88 db   8D 88.     88 `88.                      |\n");
+    printf("|                       ~Y8888P' `8888Y' Y88888P 88   YD                      |\n");
+    printf("===============================================================================\n");
+    printf("| Hello there, %-20s                                           |\n", log.username);
+    printf("| 1. View Inventory                                                           |\n");
+    printf("| 2. View Reserved Items List                                                 |\n");
+    printf("| 3. View Cart                                                                |\n");
+    printf("| 4. View PC Builder                                                          |\n");
+    printf("| 5. Checkout                                                                 |\n");
+    printf("| 6. Exit                                                                     |\n");
+    printf("===============================================================================\n");
+            do{
+            printf("| Enter Choice: ");
             scanf("%d", &userpref);
+            }while(!(userpref >= 1 && userpref <= 6));
             while (getchar() != '\n');
 
         switch(userpref){
@@ -2115,11 +2637,10 @@ void userWindow(){
                 clrscr();
                 receiptNo = checkout(uname, 1);
                 if (receiptNo == -1){
-                    printf("Your cart is empty!");
+                    checkoutPopup(receiptNo);
                 }
                 else { 
-                    printf("Successfully checked out with Receipt #%d\n", receiptNo);
-                    printf("NOTE: SAVE THIS NUMBER");
+                    checkoutPopup(receiptNo);
                 }
                 getch();
                 userWindow();
@@ -2139,17 +2660,26 @@ void userWindow(){
 void adminWindow(){
     clrscr();
     int adminUI = 0;
-    printf("\nWELCOME, %s!", log.username);
-            printf("\n1. Manage Users");
-            printf("\n2. Add New Inventory Entry");
-            printf("\n3. View Inventory");
-            printf("\n4. View Build Requests");
-            printf("\n5. View Receipts");
-            printf("\n6. Return to Login");
-
-            printf("\nEnter choice: ");
+    printf("===============================================================================\n");
+    printf("|                  .d8b.  d8888b. .88b  d88. d888888b d8b   db                |\n");
+    printf("|                 d8' `8b 88  `8D 88'YbdP`88   `88'   888o  88                |\n");
+    printf("|                 88ooo88 88   88 88  88  88    88    88V8o 88                |\n");
+    printf("|                 88~~~88 88   88 88  88  88    88    88 V8o88                |\n");
+    printf("|                 88   88 88  .8D 88  88  88   .88.   88  V888                |\n");
+    printf("|                 YP   YP Y8888D' YP  YP  YP Y888888P VP   V8P                |\n");
+    printf("===============================================================================\n");
+    printf("| Hello there, %-20s                                           |\n", log.username);
+    printf("| 1. Manage Users                                                             |\n");
+    printf("| 2. Add New Inventory Entry                                                  |\n");
+    printf("| 3. View Inventory                                                           |\n");
+    printf("| 4. View Build Requests                                                      |\n");
+    printf("| 5. View Receipts                                                            |\n");
+    printf("| 6. Return to Login                                                          |\n");
+    printf("===============================================================================\n");
+    do{
+    printf("| Enter choice: ");
             scanf("%d", &adminUI);
- 
+    }while(!(adminUI >= 1 && adminUI <= 6));
             switch(adminUI){
                 case 1: 
                 manageUsers();
