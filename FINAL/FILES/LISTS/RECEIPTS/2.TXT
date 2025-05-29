@@ -1,0 +1,11 @@
+RECEIPT NO: 2
+BUYER: admin_cat
+NAME       | PRICE 
+B650GAMI   | 280   
+RX580      | 119   
+8DARKZaA   | 50    
+500GBP3    | 190   
+P12OMNI    | 35    
+AK400CPU   | 89    
+750WSTEA   | 79    
+TOTAL PRICE: 842

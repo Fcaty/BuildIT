@@ -1,0 +1,5 @@
+RECEIPT NO: 1
+BUYER: fcatymon
+NAME       | PRICE 
+500GBP3    | 190   
+TOTAL PRICE: 190

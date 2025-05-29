@@ -578,7 +578,7 @@ void createStorage(){
     gets(createStorage.name);
     printf("| Enter price of product: ");
     scanf("%d", &createStorage.price);
-    printf("| Enter current stock: ");
+    printf("| Enter current stock : ");
     scanf("%d", &createStorage.stock);
     while (getchar() != '\n');
     printf("===============================================================================\n");
@@ -910,7 +910,10 @@ void createCooler(){
     scanf("%d", &createCooler.stock);
     while (getchar() != '\n');
     printf("===============================================================================\n");
-
+    do {
+        printf("| Create new item? [Y/N]: ");
+        scanf("\n%c", &YorN);
+    }while(YorN != 'Y' && YorN != 'N');
     if(YorN == 'Y'){
     addList("./PROJECT/FINAL/FILES/PARTS/COOL/LIST.TXT",createCooler.name);
     strcat(fileName, createCooler.name);
@@ -1218,8 +1221,14 @@ void removeUser(){
         printf("| %d. %-72s |\n", i+1, listStore[i]);
     }
     printf("===============================================================================\n");
-    printf("| Select user to delete: ");
-    scanf("%d", &select);
+    do{
+        printf("| Select user to delete: ");
+        scanf("%d", &select);
+    }while(!(select >= 0 && select <= limit));
+    if(select == 0){
+        printf("| Deletion cancelled. ");
+        goto skip;
+    }
     strncpy(selected, listStore[select-1], 8);
     selected[8] = '\0';
     strcat(BRLoc, selected);
@@ -1236,6 +1245,7 @@ void removeUser(){
     remove(ReqLoc);
     remove(fileName);
     printf("| User deleted.");
+    skip:
     getch();
 }
 
@@ -1251,7 +1261,6 @@ void regUser(){
     printf("|      88 `88. 88.     88. ~8~   .88.   db   8D    88    88.     88 `88.      |\n");
     printf("|      88   YD Y88888P  Y888P  Y888888P `8888Y'    YP    Y88888P 88   YD      |\n");
     printf("===============================================================================\n");
-    while (getchar() != '\n');
     printf("| Enter Fullname: ");
     gets(log.fullname);
 
@@ -2406,7 +2415,7 @@ void builtPopup(int receiptNo){
     printf("|            VP   V8P  `Y88P'     YP    Y888888P  `Y88P' Y88888P              |\n");
     printf("|                                                                             |\n");
     printf("|                Your build request has been accomplished!                    |\n");
-    printf("|                          Receipt No: %-5d                                  |\n");
+    printf("|                          Receipt No: %-5d                                  |\n", receiptNo);
     printf("|                                                                             |\n");
     printf("|                                                                             |\n");
     printf("|                                                                             |\n");
